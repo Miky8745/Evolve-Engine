@@ -1,6 +1,6 @@
 package com.nsg.evolve.engine.scene;
 
-import com.nsg.evolve.engine.graph.Mesh;
+import com.nsg.evolve.engine.render.Mesh;
 
 import java.util.*;
 

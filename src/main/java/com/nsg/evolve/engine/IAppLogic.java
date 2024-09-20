@@ -1,6 +1,6 @@
 package com.nsg.evolve.engine;
 
-import com.nsg.evolve.engine.graph.Render;
+import com.nsg.evolve.engine.render.Render;
 import com.nsg.evolve.engine.scene.Scene;
 
 public interface IAppLogic {

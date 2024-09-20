@@ -1,7 +1,6 @@
-package com.nsg.evolve.engine.graph;
+package com.nsg.evolve.engine.render;
 
 import com.nsg.evolve.engine.Shaders;
-import com.nsg.evolve.engine.Utilities;
 import com.nsg.evolve.engine.scene.Scene;
 
 import java.util.*;
@@ -29,7 +28,7 @@ public class SceneRender {
 
         scene.getMeshMap().values().forEach(mesh -> {
                     glBindVertexArray(mesh.getVaoId());
-                    glDrawArrays(GL_TRIANGLES, 0, mesh.getNumVertices());
+                    glDrawElements(GL_TRIANGLES, mesh.getNumVertices(), GL_UNSIGNED_INT, 0);
                 }
         );
 
