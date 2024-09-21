@@ -1,5 +1,6 @@
-package com.nsg.evolve.engine;
+package com.nsg.evolve.engine.render;
 
+import com.nsg.evolve.engine.Utilities;
 import org.lwjgl.opengl.GL30;
 
 import java.util.*;
