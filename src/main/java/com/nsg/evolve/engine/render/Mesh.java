@@ -3,8 +3,10 @@ package com.nsg.evolve.engine.render;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 
-import java.nio.*;
-import java.util.*;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL30.*;
 

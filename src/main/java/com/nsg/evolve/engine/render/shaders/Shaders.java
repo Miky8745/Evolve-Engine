@@ -1,9 +1,10 @@
-package com.nsg.evolve.engine.render;
+package com.nsg.evolve.engine.render.shaders;
 
 import com.nsg.evolve.engine.Utilities;
 import org.lwjgl.opengl.GL30;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL30.*;
 

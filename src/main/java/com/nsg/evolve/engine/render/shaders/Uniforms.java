@@ -1,4 +1,4 @@
-package com.nsg.evolve.engine.render;
+package com.nsg.evolve.engine.render.shaders;
 
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
