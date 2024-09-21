@@ -97,14 +97,14 @@ public class Main implements IAppLogic {
     public void input(Window window, Scene scene, long diffTimeMillis) {
         displInc.zero();
         if (window.isKeyPressed(GLFW_KEY_UP)) {
-            displInc.y = 1;
-        } else if (window.isKeyPressed(GLFW_KEY_DOWN)) {
             displInc.y = -1;
+        } else if (window.isKeyPressed(GLFW_KEY_DOWN)) {
+            displInc.y = 1;
         }
         if (window.isKeyPressed(GLFW_KEY_LEFT)) {
-            displInc.x = -1;
-        } else if (window.isKeyPressed(GLFW_KEY_RIGHT)) {
             displInc.x = 1;
+        } else if (window.isKeyPressed(GLFW_KEY_RIGHT)) {
+            displInc.x = -1;
         }
         if (window.isKeyPressed(GLFW_KEY_A)) {
             displInc.z = -1;

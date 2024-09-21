@@ -60,9 +60,7 @@ public class Window {
                 Logger.error("Error code [{}], msg [{}]", errorCode, MemoryUtil.memUTF8(msgPtr))
         );
 
-        glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> {
-            keyCallBack(key, action);
-        });
+        glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> keyCallBack(key, action));
 
         glfwMakeContextCurrent(windowHandle);
 
@@ -122,8 +120,8 @@ public class Window {
         this.height = height;
         try {
             resizeFunc.call();
-        } catch (Exception excp) {
-            Logger.error("Error calling resize callback", excp);
+        } catch (Exception e) {
+            Logger.error("Error calling resize callback", e);
         }
     }
 
