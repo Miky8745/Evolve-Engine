@@ -19,7 +19,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class Main implements IAppLogic {
 
     private Entity cubeEntity;
-    private Vector4f displInc = new Vector4f();
+    private Vector4f displayInc = new Vector4f();
     private float rotation;
 
     public static void main(String[] args) {
@@ -95,33 +95,33 @@ public class Main implements IAppLogic {
 
     @Override
     public void input(Window window, Scene scene, long diffTimeMillis) {
-        displInc.zero();
+        displayInc.zero();
         if (window.isKeyPressed(GLFW_KEY_UP)) {
-            displInc.y = -1;
+            displayInc.y = -1;
         } else if (window.isKeyPressed(GLFW_KEY_DOWN)) {
-            displInc.y = 1;
+            displayInc.y = 1;
         }
         if (window.isKeyPressed(GLFW_KEY_LEFT)) {
-            displInc.x = 1;
+            displayInc.x = 1;
         } else if (window.isKeyPressed(GLFW_KEY_RIGHT)) {
-            displInc.x = -1;
+            displayInc.x = -1;
         }
         if (window.isKeyPressed(GLFW_KEY_A)) {
-            displInc.z = -1;
+            displayInc.z = -1;
         } else if (window.isKeyPressed(GLFW_KEY_Q)) {
-            displInc.z = 1;
+            displayInc.z = 1;
         }
         if (window.isKeyPressed(GLFW_KEY_Z)) {
-            displInc.w = -1;
+            displayInc.w = -1;
         } else if (window.isKeyPressed(GLFW_KEY_X)) {
-            displInc.w = 1;
+            displayInc.w = 1;
         }
 
-        displInc.mul(diffTimeMillis / 1000.0f);
+        displayInc.mul(diffTimeMillis / 1000.0f);
 
         Vector3f entityPos = cubeEntity.getPosition();
-        cubeEntity.setPosition(displInc.x + entityPos.x, displInc.y + entityPos.y, displInc.z + entityPos.z);
-        cubeEntity.setScale(cubeEntity.getScale() + displInc.w);
+        cubeEntity.setPosition(displayInc.x + entityPos.x, displayInc.y + entityPos.y, displayInc.z + entityPos.z);
+        cubeEntity.setScale(cubeEntity.getScale() + displayInc.w);
         cubeEntity.updateModelMatrix();
     }
 
