@@ -177,11 +177,10 @@ public class Main implements IAppLogic {
         }
 
         MouseInput mouseInput = window.getMouseInput();
-        if (mouseInput.isRightButtonPressed()) {
-            Vector2f displVec = mouseInput.getDisplVec();
-            camera.addRotation((float) Math.toRadians(-displVec.x * MOUSE_SENSITIVITY),
-                    (float) Math.toRadians(-displVec.y * MOUSE_SENSITIVITY));
-        }
+        Vector2f displVec = mouseInput.getDisplVec();
+        camera.addRotation((float) Math.toRadians(
+                displVec.x * MOUSE_SENSITIVITY),
+                (float) Math.toRadians(displVec.y * MOUSE_SENSITIVITY));
     }
 
     @Override

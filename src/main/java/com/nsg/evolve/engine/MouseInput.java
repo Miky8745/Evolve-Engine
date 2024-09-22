@@ -40,7 +40,25 @@ public class MouseInput {
         return displVec;
     }
 
-    public void input() {
+    public void input(long window) {
+        if (glfwGetWindowAttrib(window, GLFW_FOCUSED) == 1) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+
+        int minMouseYCoord = 1000;
+        if (currentPos.y < minMouseYCoord) {
+            previousPos.y = minMouseYCoord;
+            currentPos.y = (minMouseYCoord + currentPos.y) + minMouseYCoord;
+        }
+
+        int minMouseXCoord = 1000;
+        if (currentPos.x < minMouseXCoord) {
+            previousPos.x = minMouseXCoord;
+            currentPos.x = (minMouseXCoord + currentPos.x) + minMouseXCoord;
+        }
+
+        glfwSetCursorPos(window, currentPos.x, currentPos.y);
+
         displVec.x = 0;
         displVec.y = 0;
         if (previousPos.x > 0 && previousPos.y > 0 && inWindow) {
