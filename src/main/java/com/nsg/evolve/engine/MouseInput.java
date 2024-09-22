@@ -45,13 +45,13 @@ public class MouseInput {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
 
-        int minMouseYCoord = 1000;
+        int minMouseYCoord = 10000;
         if (currentPos.y < minMouseYCoord) {
             previousPos.y = minMouseYCoord;
             currentPos.y = (minMouseYCoord + currentPos.y) + minMouseYCoord;
         }
 
-        int minMouseXCoord = 1000;
+        int minMouseXCoord = 10000;
         if (currentPos.x < minMouseXCoord) {
             previousPos.x = minMouseXCoord;
             currentPos.x = (minMouseXCoord + currentPos.x) + minMouseXCoord;
