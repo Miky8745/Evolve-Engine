@@ -1,4 +1,4 @@
-package com.nsg.evolve.engine.render;
+package com.nsg.evolve.engine.render.object;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,16 +7,16 @@ public class Model {
 
     private final String id;
     private List<Entity> entitiesList;
-    private List<Mesh> meshList;
+    private List<Material> materialList;
 
-    public Model(String id, List<Mesh> meshList) {
+    public Model(String id, List<Material> materialList) {
         this.id = id;
-        this.meshList = meshList;
         entitiesList = new ArrayList<>();
+        this.materialList = materialList;
     }
 
     public void cleanup() {
-        meshList.forEach(Mesh::cleanup);
+        materialList.forEach(Material::cleanup);
     }
 
     public List<Entity> getEntitiesList() {
@@ -27,8 +27,7 @@ public class Model {
         return id;
     }
 
-    public List<Mesh> getMeshList() {
-        return meshList;
+    public List<Material> getMaterialList() {
+        return materialList;
     }
-
 }

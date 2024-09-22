@@ -1,7 +1,8 @@
 package com.nsg.evolve.engine.scene;
 
-import com.nsg.evolve.engine.render.Entity;
-import com.nsg.evolve.engine.render.Model;
+import com.nsg.evolve.engine.render.object.Entity;
+import com.nsg.evolve.engine.render.object.Model;
+import com.nsg.evolve.engine.render.object.texture.TextureCache;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,10 +11,12 @@ public class Scene {
 
     private Map<String, Model> modelMap;
     private Projection projection;
+    private TextureCache textureCache;
 
     public Scene(int width, int height) {
         modelMap = new HashMap<>();
         projection = new Projection(width, height);
+        textureCache = new TextureCache();
     }
 
     public void addEntity(Entity entity) {
@@ -43,5 +46,9 @@ public class Scene {
 
     public void resize(int width, int height) {
         projection.updateProjMatrix(width, height);
+    }
+
+    public TextureCache getTextureCache() {
+        return textureCache;
     }
 }
