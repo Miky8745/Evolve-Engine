@@ -37,6 +37,7 @@ public class SceneRender {
         uniformsMap.createUniform("modelMatrix");
         uniformsMap.createUniform("txtSampler");
         uniformsMap.createUniform("viewMatrix");
+        uniformsMap.createUniform("material.diffuse");
     }
 
     public void cleanup() {
@@ -65,6 +66,7 @@ public class SceneRender {
                     glBindVertexArray(mesh.getVaoId());
                     for (Entity entity : entities) {
                         uniformsMap.setUniform("modelMatrix", entity.getModelMatrix());
+                        uniformsMap.setUniform("material.diffuse", material.getDiffuseColor());
                         glDrawElements(GL_TRIANGLES, mesh.getNumVertices(), GL_UNSIGNED_INT, 0);
                     }
                 }
