@@ -13,8 +13,6 @@ import com.nsg.evolve.engine.render.object.texture.Texture;
 import com.nsg.evolve.engine.scene.Camera;
 import com.nsg.evolve.engine.scene.Scene;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;

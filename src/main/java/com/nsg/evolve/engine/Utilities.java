@@ -6,10 +6,6 @@ import java.nio.file.Paths;
 
 public class Utilities {
 
-    private Utilities() {
-        // Utility class
-    }
-
     public static String readFile(String filePath) {
         String str;
         try {
