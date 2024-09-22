@@ -1,14 +1,18 @@
 # Evolve Game Engine
 
-The **Evolve Game Engine** is a custom-built game engine designed to push the boundaries of my previous work, offering significant improvements and new capabilities. This engine serves as the foundation for a future 3D game project, with inspiration drawn from survival games like *Rust*.
+The **Evolve Game Engine** is a custom-built game engine designed to push the boundaries of my previous work, offering significant improvements and new capabilities. This engine serves as the foundation for a future 3D game project, with inspiration drawn from survival games like *Rust*. However, my goal is to create a more technical and complex gameplay experience, focusing on deeper mechanics, systems, and player interactions—elements that align with the type of game I personally enjoy.
 
 ## Features
 
 - Major enhancements over the previous version
-- Tailored for 3D game development
+- Made for 3D game development
 
 ## Future Goals
 
-The long-term vision for the Evolve engine includes the development of a 3D game that combines survival, crafting, and exploration elements, similar to popular titles in the genre.
+The long-term vision for the Evolve engine includes the development of a 3D game that combines survival, crafting, and exploration elements, similar to popular titles in the genre, but with a stronger emphasis on intricate, technical gameplay. The goal is to offer a more challenging, detail-oriented experience that rewards strategic thinking and mastery.
 
 Stay tuned for updates as the engine evolves!
+
+----------------------------------------------
+
+Previous engine: https://github.com/Miky8745/Java-3D-NSGG-Game-Engine
