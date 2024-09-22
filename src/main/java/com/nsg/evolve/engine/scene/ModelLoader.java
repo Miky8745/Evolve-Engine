@@ -69,7 +69,7 @@ public class ModelLoader {
 
     private static Material processMaterial(AIMaterial aiMaterial, String modelDir, TextureCache textureCache) {
         Material material = new Material();
-        try (MemoryStack stack = MemoryStack.stackPush()) {
+        try (MemoryStack ignored = MemoryStack.stackPush()) {
             AIColor4D color = AIColor4D.create();
 
             int result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0,
@@ -82,7 +82,7 @@ public class ModelLoader {
             aiGetMaterialTexture(aiMaterial, aiTextureType_DIFFUSE, 0, aiTexturePath, (IntBuffer) null,
                     null, null, null, null, null);
             String texturePath = aiTexturePath.dataString();
-            if (texturePath != null && !texturePath.isEmpty()) {
+            if (!texturePath.isEmpty()) {
                 material.setTexturePath(modelDir + File.separator + new File(texturePath).getName());
                 textureCache.createTexture(material.getTexturePath());
                 material.setDiffuseColor(Material.DEFAULT_COLOR);

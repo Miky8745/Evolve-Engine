@@ -6,17 +6,11 @@ import com.nsg.evolve.engine.MouseInput;
 import com.nsg.evolve.engine.Window;
 import com.nsg.evolve.engine.render.Render;
 import com.nsg.evolve.engine.render.object.Entity;
-import com.nsg.evolve.engine.render.object.Material;
-import com.nsg.evolve.engine.render.object.Mesh;
 import com.nsg.evolve.engine.render.object.Model;
-import com.nsg.evolve.engine.render.object.texture.Texture;
 import com.nsg.evolve.engine.scene.Camera;
 import com.nsg.evolve.engine.scene.ModelLoader;
 import com.nsg.evolve.engine.scene.Scene;
 import org.joml.Vector2f;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
