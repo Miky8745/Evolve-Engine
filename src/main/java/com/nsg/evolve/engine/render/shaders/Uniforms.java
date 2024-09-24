@@ -1,6 +1,7 @@
 package com.nsg.evolve.engine.render.shaders;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
 
@@ -48,5 +49,9 @@ public class Uniforms {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             glUniformMatrix4fv(getUniformLocation(uniformName), false, value.get(stack.mallocFloat(16)));
         }
+    }
+
+    public void setUniform(String uniformName, Vector2f value) {
+        glUniform2f(getUniformLocation(uniformName), value.x, value.y);
     }
 }

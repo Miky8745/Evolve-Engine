@@ -1,5 +1,7 @@
 package com.nsg.evolve.engine;
 
+import com.nsg.evolve.engine.interfaces.IAppLogic;
+import com.nsg.evolve.engine.interfaces.IGuiInstance;
 import com.nsg.evolve.engine.render.Render;
 import com.nsg.evolve.engine.scene.Scene;
 
@@ -22,7 +24,7 @@ public class Engine {
         targetFps = opts.fps;
         targetUps = opts.ups;
         this.appLogic = appLogic;
-        render = new Render();
+        render = new Render(window);
         scene = new Scene(window.getWidth(), window.getHeight());
         appLogic.init(window, scene, render);
         running = true;
@@ -36,7 +38,10 @@ public class Engine {
     }
 
     private void resize() {
-        scene.resize(window.getWidth(), window.getHeight());
+        int width = window.getWidth();
+        int height = window.getHeight();
+        scene.resize(width, height);
+        render.resize(width, height);
     }
 
     private void run() {
@@ -47,6 +52,9 @@ public class Engine {
         float deltaFps = 0;
 
         long updateTime = initialTime;
+
+        IGuiInstance iGuiInstance = scene.getGuiInstance();
+
         while (running && !window.windowShouldClose()) {
             window.pollEvents();
 
@@ -56,7 +64,8 @@ public class Engine {
 
             if (targetFps <= 0 || deltaFps >= 1) {
                 window.getMouseInput().input(window.getWindowHandle());
-                appLogic.input(window, scene, now - initialTime);
+                boolean inputConsumed = iGuiInstance != null && iGuiInstance.handleGuiInput(scene, window);
+                appLogic.input(window, scene, now - initialTime, inputConsumed);
             }
 
             if (deltaUpdate >= 1) {

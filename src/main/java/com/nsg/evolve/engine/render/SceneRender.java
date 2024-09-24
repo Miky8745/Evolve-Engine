@@ -24,8 +24,8 @@ public class SceneRender {
 
     public SceneRender() {
         List<Shaders.ShaderModuleData> shaderModuleDataList = new ArrayList<>();
-        shaderModuleDataList.add(new Shaders.ShaderModuleData(genPath("shaders/scene.vert"), GL_VERTEX_SHADER));
-        shaderModuleDataList.add(new Shaders.ShaderModuleData(genPath("shaders/scene.frag"), GL_FRAGMENT_SHADER));
+        shaderModuleDataList.add(new Shaders.ShaderModuleData(genPath("shaders/scene/scene.vert"), GL_VERTEX_SHADER));
+        shaderModuleDataList.add(new Shaders.ShaderModuleData(genPath("shaders/scene/scene.frag"), GL_FRAGMENT_SHADER));
 
         shaderProgram = new Shaders(shaderModuleDataList);
         createUniforms();
