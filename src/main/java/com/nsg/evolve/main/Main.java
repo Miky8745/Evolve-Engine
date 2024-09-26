@@ -4,7 +4,6 @@ import com.nsg.evolve.engine.Engine;
 import com.nsg.evolve.engine.MouseInput;
 import com.nsg.evolve.engine.Window;
 import com.nsg.evolve.engine.interfaces.IAppLogic;
-import com.nsg.evolve.engine.interfaces.IGuiInstance;
 import com.nsg.evolve.engine.render.Render;
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Model;
@@ -15,9 +14,6 @@ import com.nsg.evolve.engine.scene.lighting.SceneLights;
 import com.nsg.evolve.engine.scene.lighting.lights.PointLight;
 import com.nsg.evolve.engine.scene.lighting.lights.SpotLight;
 import com.nsg.evolve.game.guis.LightControls;
-import imgui.ImGui;
-import imgui.ImGuiIO;
-import imgui.flag.ImGuiCond;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -30,7 +26,6 @@ public class Main implements IAppLogic {
 
     private LightControls lightControls;
     private Entity cubeEntity;
-    private float rotation;
 
     public static void main(String[] args) {
         Main main = new Main();
