@@ -11,18 +11,24 @@ import com.nsg.evolve.engine.render.object.Model;
 import com.nsg.evolve.engine.scene.Camera;
 import com.nsg.evolve.engine.scene.ModelLoader;
 import com.nsg.evolve.engine.scene.Scene;
+import com.nsg.evolve.engine.scene.lighting.SceneLights;
+import com.nsg.evolve.engine.scene.lighting.lights.PointLight;
+import com.nsg.evolve.engine.scene.lighting.lights.SpotLight;
+import com.nsg.evolve.game.guis.LightControls;
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.flag.ImGuiCond;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Main implements IAppLogic, IGuiInstance {
+public class Main implements IAppLogic {
 
     private static final float MOUSE_SENSITIVITY = 0.1f;
     private static final float MOVEMENT_SPEED = 0.001f;
 
+    private LightControls lightControls;
     private Entity cubeEntity;
     private float rotation;
 
@@ -41,17 +47,28 @@ public class Main implements IAppLogic, IGuiInstance {
         // Nothing to be done yet
     }
 
-    @Override
     public void init(Window window, Scene scene, Render render) {
         Model cubeModel = ModelLoader.loadModel("cube-model", "resources/models/cube/cube.obj",
                 scene.getTextureCache());
         scene.addModel(cubeModel);
 
         cubeEntity = new Entity("cube-entity", cubeModel.getId());
-        cubeEntity.setPosition(0, 0, -2);
+        cubeEntity.setPosition(0, 0f, -2);
+        cubeEntity.updateModelMatrix();
         scene.addEntity(cubeEntity);
 
-        scene.setGuiInstance(this);
+        SceneLights sceneLights = new SceneLights();
+        sceneLights.getAmbientLight().setIntensity(0.3f);
+        scene.setSceneLights(sceneLights);
+        sceneLights.getPointLights().add(new PointLight(new Vector3f(1, 1, 1),
+                new Vector3f(0, 0, -1.4f), 1.0f));
+
+        Vector3f coneDir = new Vector3f(0, 0, -1);
+        sceneLights.getSpotLights().add(new SpotLight(new PointLight(new Vector3f(1, 1, 1),
+                new Vector3f(0, 0, -1.4f), 0.0f), coneDir, 140.0f));
+
+        lightControls = new LightControls(scene);
+        scene.setGuiInstance(lightControls);
     }
 
     @Override
@@ -89,32 +106,6 @@ public class Main implements IAppLogic, IGuiInstance {
 
     @Override
     public void update(Window window, Scene scene, long diffTimeMillis) {
-        rotation += 1.5f;
-        if (rotation > 360) {
-            rotation = 0;
-        }
-        cubeEntity.setRotation(1, 1, 1, (float) Math.toRadians(rotation));
-        cubeEntity.updateModelMatrix();
-    }
-
-    @Override
-    public void drawGui() {
-        ImGui.newFrame();
-        ImGui.setNextWindowPos(0, 0, ImGuiCond.Always);
-        ImGui.showDemoWindow();
-        ImGui.endFrame();
-        ImGui.render();
-    }
-
-    @Override
-    public boolean handleGuiInput(Scene scene, Window window) {
-        ImGuiIO imGuiIO = ImGui.getIO();
-        MouseInput mouseInput = window.getMouseInput();
-        Vector2f mousePos = mouseInput.getCurrentPos();
-        imGuiIO.addMousePosEvent(mousePos.x, mousePos.y);
-        imGuiIO.addMouseButtonEvent(0, mouseInput.isLeftButtonPressed());
-        imGuiIO.addMouseButtonEvent(1, mouseInput.isRightButtonPressed());
-
-        return imGuiIO.getWantCaptureMouse() || imGuiIO.getWantCaptureKeyboard();
+        // Nothing to be done here
     }
 }

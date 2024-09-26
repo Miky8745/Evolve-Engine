@@ -4,6 +4,7 @@ import com.nsg.evolve.engine.interfaces.IGuiInstance;
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Model;
 import com.nsg.evolve.engine.render.object.texture.TextureCache;
+import com.nsg.evolve.engine.scene.lighting.SceneLights;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,7 @@ public class Scene {
     private TextureCache textureCache;
     private Camera camera;
     private IGuiInstance guiInstance;
+    private SceneLights sceneLights;
 
     public Scene(int width, int height) {
         modelMap = new HashMap<>();
@@ -66,5 +68,13 @@ public class Scene {
 
     public void setGuiInstance(IGuiInstance guiInstance) {
         this.guiInstance = guiInstance;
+    }
+
+    public SceneLights getSceneLights() {
+        return sceneLights;
+    }
+
+    public void setSceneLights(SceneLights sceneLights) {
+        this.sceneLights = sceneLights;
     }
 }
