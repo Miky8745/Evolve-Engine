@@ -1,7 +1,9 @@
-package com.nsg.evolve.engine.render.gui;
+package com.nsg.evolve.engine.render;
 
 import com.nsg.evolve.engine.Window;
 import com.nsg.evolve.engine.interfaces.IGuiInstance;
+import com.nsg.evolve.engine.interfaces.IResizableRenderer;
+import com.nsg.evolve.engine.render.object.GuiMesh;
 import com.nsg.evolve.engine.render.object.texture.Texture;
 import com.nsg.evolve.engine.render.shaders.Shaders;
 import com.nsg.evolve.engine.render.shaders.Uniforms;
@@ -23,7 +25,7 @@ import static com.nsg.evolve.engine.Utilities.genPath;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL32.*;
 
-public class GuiRender {
+public class GuiRender implements IResizableRenderer {
 
     private GuiMesh guiMesh;
     private GLFWKeyCallback prevKeyCallBack;

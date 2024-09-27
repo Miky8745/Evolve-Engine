@@ -1,5 +1,6 @@
 package com.nsg.evolve.engine.render;
 
+import com.nsg.evolve.engine.interfaces.IRenderer;
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Material;
 import com.nsg.evolve.engine.render.object.Mesh;
@@ -25,7 +26,7 @@ import java.util.List;
 import static com.nsg.evolve.engine.Utilities.genPath;
 import static org.lwjgl.opengl.GL30.*;
 
-public class SceneRender {
+public class SceneRender implements IRenderer {
 
     private Shaders shaderProgram;
     private Uniforms uniformsMap;

@@ -10,9 +10,8 @@ import com.nsg.evolve.engine.render.object.Model;
 import com.nsg.evolve.engine.scene.Camera;
 import com.nsg.evolve.engine.scene.ModelLoader;
 import com.nsg.evolve.engine.scene.Scene;
+import com.nsg.evolve.engine.scene.SkyBox;
 import com.nsg.evolve.engine.scene.lighting.SceneLights;
-import com.nsg.evolve.engine.scene.lighting.lights.PointLight;
-import com.nsg.evolve.engine.scene.lighting.lights.SpotLight;
 import com.nsg.evolve.game.guis.LightControls;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -23,7 +22,9 @@ public class Main implements IAppLogic {
 
     private static final float MOUSE_SENSITIVITY = 0.1f;
     private static final float MOVEMENT_SPEED = 0.001f;
+    private static final int NUM_CHUNKS = 4;
 
+    private Entity[][] terrainEntities;
     private LightControls lightControls;
     private Entity cubeEntity;
 
@@ -42,36 +43,39 @@ public class Main implements IAppLogic {
         // Nothing to be done yet
     }
 
+    @Override
     public void init(Window window, Scene scene, Render render) {
-        Model cubeModel = ModelLoader.loadModel("cube-model", "resources/models/cube/cube.obj",
+        String quadModelId = "quad-model";
+        Model quadModel = ModelLoader.loadModel("quad-model", "resources/models/quad/quad.obj",
                 scene.getTextureCache());
-        scene.addModel(cubeModel);
+        scene.addModel(quadModel);
 
-        cubeEntity = new Entity("cube-entity", cubeModel.getId());
-        cubeEntity.setPosition(0, 0f, -2);
-        cubeEntity.updateModelMatrix();
-        scene.addEntity(cubeEntity);
+        int numRows = NUM_CHUNKS * 2 + 1;
+        int numCols = numRows;
+        terrainEntities = new Entity[numRows][numCols];
+        for (int j = 0; j < numRows; j++) {
+            for (int i = 0; i < numCols; i++) {
+                Entity entity = new Entity("TERRAIN_" + j + "_" + i, quadModelId);
+                terrainEntities[j][i] = entity;
+                scene.addEntity(entity);
+            }
+        }
 
         SceneLights sceneLights = new SceneLights();
-        sceneLights.getAmbientLight().setIntensity(0.3f);
+        sceneLights.getAmbientLight().setIntensity(0.2f);
         scene.setSceneLights(sceneLights);
-        sceneLights.getPointLights().add(new PointLight(new Vector3f(1, 1, 1),
-                new Vector3f(0, 0, -1.4f), 1.0f));
 
-        Vector3f coneDir = new Vector3f(0, 0, -1);
-        sceneLights.getSpotLights().add(new SpotLight(new PointLight(new Vector3f(1, 1, 1),
-                new Vector3f(0, 0, -1.4f), 0.0f), coneDir, 140.0f));
+        SkyBox skyBox = new SkyBox("resources/models/skybox/skybox.obj", scene.getTextureCache());
+        skyBox.getSkyBoxEntity().setScale(50);
+        scene.setSkyBox(skyBox);
 
-        lightControls = new LightControls(scene);
-        scene.setGuiInstance(lightControls);
+        scene.getCamera().moveUp(0.1f);
+
+        updateTerrain(scene);
     }
 
     @Override
     public void input(Window window, Scene scene, long diffTimeMillis, boolean inputConsumed) {
-        if (inputConsumed) {
-            return;
-        }
-
         float move = diffTimeMillis * MOVEMENT_SPEED;
         Camera camera = scene.getCamera();
         if (window.isKeyPressed(GLFW_KEY_W)) {
@@ -83,11 +87,6 @@ public class Main implements IAppLogic {
             camera.moveLeft(move);
         } else if (window.isKeyPressed(GLFW_KEY_D)) {
             camera.moveRight(move);
-        }
-        if (window.isKeyPressed(GLFW_KEY_UP)) {
-            camera.moveUp(move);
-        } else if (window.isKeyPressed(GLFW_KEY_DOWN)) {
-            camera.moveDown(move);
         }
 
         MouseInput mouseInput = window.getMouseInput();
@@ -101,6 +100,30 @@ public class Main implements IAppLogic {
 
     @Override
     public void update(Window window, Scene scene, long diffTimeMillis) {
-        // Nothing to be done here
+        updateTerrain(scene);
+    }
+
+    public void updateTerrain(Scene scene) {
+        int cellSize = 10;
+        Camera camera = scene.getCamera();
+        Vector3f cameraPos = camera.getPosition();
+        int cellCol = (int) (cameraPos.x / cellSize);
+        int cellRow = (int) (cameraPos.z / cellSize);
+
+        int numRows = NUM_CHUNKS * 2 + 1;
+        int numCols = numRows;
+        int zOffset = -NUM_CHUNKS;
+        float scale = cellSize / 2.0f;
+        for (int j = 0; j < numRows; j++) {
+            int xOffset = -NUM_CHUNKS;
+            for (int i = 0; i < numCols; i++) {
+                Entity entity = terrainEntities[j][i];
+                entity.setScale(scale);
+                entity.setPosition((cellCol + xOffset) * 2.0f, 0, (cellRow + zOffset) * 2.0f);
+                entity.getModelMatrix().identity().scale(scale).translate(entity.getPosition());
+                xOffset++;
+            }
+            zOffset++;
+        }
     }
 }
