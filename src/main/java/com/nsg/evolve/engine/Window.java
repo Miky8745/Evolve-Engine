@@ -109,9 +109,7 @@ public class Window {
     }
 
     public void keyCallBack(int key, int action) {
-        if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-            glfwSetWindowShouldClose(windowHandle, true); // We will detect this in the rendering loop
-        }
+
     }
 
     public void pollEvents() {

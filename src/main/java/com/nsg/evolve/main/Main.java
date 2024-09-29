@@ -10,7 +10,6 @@ import com.nsg.evolve.engine.render.object.Model;
 import com.nsg.evolve.engine.scene.*;
 import com.nsg.evolve.engine.scene.lighting.SceneLights;
 import com.nsg.evolve.engine.scene.lighting.lights.AmbientLight;
-import com.nsg.evolve.game.guis.LightControls;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -62,18 +61,14 @@ public class Main implements IAppLogic {
         AmbientLight ambientLight = sceneLights.getAmbientLight();
         ambientLight.setIntensity(0.5f);
         ambientLight.setColor(0.3f, 0.3f, 0.3f);
-        /*
-        DirectionalLight dirLight = sceneLights.getDirLight();
-        dirLight.setPosition(0, 1, 0);
-        dirLight.setIntensity(1.0f);
-         */
+
         scene.setSceneLights(sceneLights);
 
         SkyBox skyBox = new SkyBox("resources/models/skybox/skybox.obj", scene.getTextureCache());
-        skyBox.getSkyBoxEntity().setScale(50);
-        //scene.setSkyBox(skyBox);
+        skyBox.getSkyBoxEntity().setScale(1f);
+        scene.setSkyBox(skyBox);
 
-        scene.setFog(new Fog(false, new Vector3f(0.5f, 0.5f, 0.5f), 0.5f));
+        scene.setFog(new Fog(true, new Vector3f(0.5f, 0.5f, 0.5f), 0.25f));
 
         scene.getCamera().moveUp(1.8f);
     }

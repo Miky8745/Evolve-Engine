@@ -5,6 +5,7 @@ import com.nsg.evolve.engine.render.object.Model;
 import com.nsg.evolve.engine.render.object.texture.TextureCache;
 
 public class SkyBox {
+
     private Entity skyBoxEntity;
     private Model skyBoxModel;
 
