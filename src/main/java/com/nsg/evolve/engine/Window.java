@@ -71,6 +71,12 @@ public class Window {
             glfwSwapInterval(1);
         }
 
+        if (opts.antiAliasing) {
+            glfwWindowHint(GLFW_SAMPLES, 4);
+        }
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+
         glfwShowWindow(windowHandle);
 
         int[] arrWidth = new int[1];
@@ -140,6 +146,7 @@ public class Window {
         public int height;
         public int ups = Engine.TARGET_UPS;
         public int width;
+        public boolean antiAliasing;
     }
 
     public MouseInput getMouseInput() {

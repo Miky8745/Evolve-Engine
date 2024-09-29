@@ -22,10 +22,14 @@ public class Main implements IAppLogic {
     private static final float MOUSE_SENSITIVITY = 0.1f;
     private static final float MOVEMENT_SPEED = 0.001f;
     private float lightAngle;
+    private Entity cube;
+    private float rotation;
 
     public static void main(String[] args) {
         Main main = new Main();
-        Engine gameEngine = new Engine("Evolve", new Window.WindowOptions(), main);
+        Window.WindowOptions options = new Window.WindowOptions();
+        options.antiAliasing = true;
+        Engine gameEngine = new Engine("Evolve", options, main);
         try {
             gameEngine.start();
         } catch (Exception e) {
@@ -55,6 +59,15 @@ public class Main implements IAppLogic {
         Model quadModel = ModelLoader.loadModel(wallModelId, "resources/models/wall/wall.obj",
                 scene.getTextureCache());
         scene.addModel(quadModel);
+
+        String cubeId = "cube";
+        Model cubeModel = ModelLoader.loadModel(cubeId, "resources/models/cube/cube.obj", scene.getTextureCache());
+        scene.addModel(cubeModel);
+
+        cube = new Entity("cubeEntity", cubeId);
+        cube.setPosition(0,0,0);
+        cube.updateModelMatrix();
+        scene.addEntity(cube);
 
         Entity wallRightEntity = new Entity("wallRightEntity", wallModelId);
         wallRightEntity.setPosition(3f, 0, 0);
@@ -133,6 +146,11 @@ public class Main implements IAppLogic {
 
     @Override
     public void update(Window window, Scene scene, long diffTimeMillis) {
-
+        rotation += 1.5f;
+        if (rotation > 360) {
+            rotation = 0;
+        }
+        cube.setRotation(1, 1, 1, (float) Math.toRadians(rotation));
+        cube.updateModelMatrix();
     }
 }
