@@ -9,6 +9,7 @@ import com.nsg.evolve.engine.render.object.texture.Texture;
 import com.nsg.evolve.engine.render.object.texture.TextureCache;
 import com.nsg.evolve.engine.render.shaders.Shaders;
 import com.nsg.evolve.engine.render.shaders.Uniforms;
+import com.nsg.evolve.engine.scene.Fog;
 import com.nsg.evolve.engine.scene.Scene;
 import com.nsg.evolve.engine.scene.lighting.SceneLights;
 import com.nsg.evolve.engine.scene.lighting.lights.AmbientLight;
@@ -49,8 +50,12 @@ public class SceneRender implements IRenderer {
         uniformsMap.createUniform("modelMatrix");
         uniformsMap.createUniform("txtSampler");
         uniformsMap.createUniform("viewMatrix");
-        uniformsMap.createUniform("material.diffuse");
 
+        uniformsMap.createUniform("fog.activeFog");
+        uniformsMap.createUniform("fog.color");
+        uniformsMap.createUniform("fog.density");
+
+        uniformsMap.createUniform("material.diffuse");
         uniformsMap.createUniform("material.ambient");
         uniformsMap.createUniform("material.diffuse");
         uniformsMap.createUniform("material.specular");
@@ -89,6 +94,9 @@ public class SceneRender implements IRenderer {
     }
 
     public void render(Scene scene) {
+        glEnable(GL_BLEND);
+        glBlendEquation(GL_FUNC_ADD);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         shaderProgram.bind();
 
         updateLights(scene);
@@ -97,6 +105,11 @@ public class SceneRender implements IRenderer {
         uniformsMap.setUniform("viewMatrix", scene.getCamera().getViewMatrix());
 
         uniformsMap.setUniform("txtSampler", 0);
+
+        Fog fog = scene.getFog();
+        uniformsMap.setUniform("fog.activeFog", fog.isActive() ? 1 : 0);
+        uniformsMap.setUniform("fog.color", fog.getColor());
+        uniformsMap.setUniform("fog.density", fog.getDensity());
 
         Collection<Model> models = scene.getModelMap().values();
         TextureCache textureCache = scene.getTextureCache();
@@ -126,6 +139,7 @@ public class SceneRender implements IRenderer {
         glBindVertexArray(0);
 
         shaderProgram.unbind();
+        glDisable(GL_BLEND);
     }
 
     private void updateLights(Scene scene) {

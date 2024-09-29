@@ -1,7 +1,7 @@
 #version 330
 
-in vec2 fragTextCoords;
-in vec4 fragColor;
+in vec2 frgTextCoords;
+in vec4 frgColor;
 
 uniform sampler2D txtSampler;
 
@@ -9,5 +9,5 @@ out vec4 outColor;
 
 void main()
 {
-    outColor = fragColor  * texture(txtSampler, fragTextCoords);
+    outColor = frgColor  * texture(txtSampler, frgTextCoords);
 }

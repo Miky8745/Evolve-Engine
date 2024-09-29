@@ -18,6 +18,7 @@ public class Scene {
     private IGuiInstance guiInstance;
     private SceneLights sceneLights;
     private SkyBox skyBox;
+    private Fog fog;
 
     public Scene(int width, int height) {
         modelMap = new HashMap<>();
@@ -87,5 +88,11 @@ public class Scene {
         this.skyBox = skyBox;
     }
 
+    public Fog getFog() {
+        return fog;
+    }
 
+    public void setFog(Fog fog) {
+        this.fog = fog;
+    }
 }
