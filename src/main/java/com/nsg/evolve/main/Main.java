@@ -7,11 +7,13 @@ import com.nsg.evolve.engine.interfaces.IAppLogic;
 import com.nsg.evolve.engine.render.Render;
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Model;
-import com.nsg.evolve.engine.scene.*;
+import com.nsg.evolve.engine.scene.Camera;
+import com.nsg.evolve.engine.scene.Fog;
+import com.nsg.evolve.engine.scene.ModelLoader;
+import com.nsg.evolve.engine.scene.Scene;
 import com.nsg.evolve.engine.scene.lighting.SceneLights;
-import com.nsg.evolve.engine.scene.lighting.lights.AmbientLight;
+import com.nsg.evolve.engine.scene.lighting.lights.DirectionalLight;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -19,6 +21,7 @@ public class Main implements IAppLogic {
 
     private static final float MOUSE_SENSITIVITY = 0.1f;
     private static final float MOVEMENT_SPEED = 0.001f;
+    private float lightAngle;
 
     public static void main(String[] args) {
         Main main = new Main();
@@ -37,42 +40,44 @@ public class Main implements IAppLogic {
 
     @Override
     public void init(Window window, Scene scene, Render render) {
-        String terrainModelId = "terrain";
-        Model terrainModel = ModelLoader.loadModel(terrainModelId, "resources/models/terrain/terrain.obj",
+        String wallNoNormalsModelId = "quad-no-normals-model";
+        Model quadModelNoNormals = ModelLoader.loadModel(wallNoNormalsModelId, "resources/models/wall/wall_normals.obj",
                 scene.getTextureCache());
+        scene.addModel(quadModelNoNormals);
 
-        String cubeModelId = "cube";
-        Model cube = ModelLoader.loadModel(cubeModelId, "resources/models/cube/cube.obj", scene.getTextureCache());
+        Entity wallLeftEntity = new Entity("wallLeftEntity", wallNoNormalsModelId);
+        wallLeftEntity.setPosition(-3f, 0, 0);
+        wallLeftEntity.setScale(2.0f);
+        wallLeftEntity.updateModelMatrix();
+        scene.addEntity(wallLeftEntity);
 
-        scene.addModel(cube);
-        scene.addModel(terrainModel);
+        String wallModelId = "quad-model";
+        Model quadModel = ModelLoader.loadModel(wallModelId, "resources/models/wall/wall.obj",
+                scene.getTextureCache());
+        scene.addModel(quadModel);
 
-        Entity terrainEntity = new Entity("terrainEntity", terrainModelId);
-        terrainEntity.setScale(10.0f);
-        terrainEntity.updateModelMatrix();
-        scene.addEntity(terrainEntity);
-
-        Entity cubeEntity = new Entity("cubeEntity", cubeModelId);
-        cubeEntity.setPosition(0,0.5f,1);
-        cubeEntity.updateModelMatrix();
-        scene.addEntity(cubeEntity);
+        Entity wallRightEntity = new Entity("wallRightEntity", wallModelId);
+        wallRightEntity.setPosition(3f, 0, 0);
+        wallRightEntity.setScale(2.0f);
+        wallRightEntity.updateModelMatrix();
+        scene.addEntity(wallRightEntity);
 
         SceneLights sceneLights = new SceneLights();
-        AmbientLight ambientLight = sceneLights.getAmbientLight();
-        ambientLight.setIntensity(0.5f);
-        ambientLight.setColor(0.3f, 0.3f, 0.3f);
-
+        sceneLights.getAmbientLight().setIntensity(0.2f);
+        DirectionalLight dirLight = sceneLights.getDirLight();
+        dirLight.setPosition(1, 1, 0);
+        dirLight.setIntensity(1.0f);
         scene.setSceneLights(sceneLights);
 
-        SkyBox skyBox = new SkyBox("resources/models/skybox/skybox.obj", scene.getTextureCache());
-        skyBox.getSkyBoxEntity().setScale(1f);
-        scene.setSkyBox(skyBox);
+        Fog fog = new Fog();
+        scene.setFog(fog);
 
-        scene.setFog(new Fog(true, new Vector3f(0.5f, 0.5f, 0.5f), 0.25f));
+        Camera camera = scene.getCamera();
+        camera.moveUp(5.0f);
+        camera.addRotation((float) Math.toRadians(90), 0);
 
-        scene.getCamera().moveUp(1.8f);
+        lightAngle = -35;
     }
-
     @Override
     public void input(Window window, Scene scene, long diffTimeMillis, boolean inputConsumed) {
         if (inputConsumed) {
@@ -81,8 +86,6 @@ public class Main implements IAppLogic {
 
         float move = diffTimeMillis * MOVEMENT_SPEED;
         Camera camera = scene.getCamera();
-
-        //System.out.println(camera.getPosition());
 
         if (window.isKeyPressed(GLFW_KEY_W)) {
             camera.moveForward(move);
@@ -101,6 +104,18 @@ public class Main implements IAppLogic {
             camera.moveDown(move);
         }
 
+        if (window.isKeyPressed(GLFW_KEY_LEFT)) {
+            lightAngle -= 2.5f;
+            if (lightAngle < -90) {
+                lightAngle = -90;
+            }
+        } else if (window.isKeyPressed(GLFW_KEY_RIGHT)) {
+            lightAngle += 2.5f;
+            if (lightAngle > 90) {
+                lightAngle = 90;
+            }
+        }
+
         MouseInput mouseInput = window.getMouseInput();
         if (mouseInput.isRightButtonPressed()) {
             Vector2f displVec = mouseInput.getDisplVec();
@@ -108,6 +123,12 @@ public class Main implements IAppLogic {
                             displVec.x * MOUSE_SENSITIVITY),
                     (float) Math.toRadians(displVec.y * MOUSE_SENSITIVITY));
         }
+
+        SceneLights sceneLights = scene.getSceneLights();
+        DirectionalLight dirLight = sceneLights.getDirLight();
+        double angRad = Math.toRadians(lightAngle);
+        dirLight.getDirection().x = (float) Math.sin(angRad);
+        dirLight.getDirection().y = (float) Math.cos(angRad);
     }
 
     @Override

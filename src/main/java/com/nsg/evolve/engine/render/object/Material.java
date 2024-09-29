@@ -13,6 +13,7 @@ public class Material {
     private Vector4f ambientColor;
     private float reflectance;
     private Vector4f specularColor;
+    private String normalMapPath;
 
     private List<Mesh> meshList;
     private String texturePath;
@@ -69,5 +70,13 @@ public class Material {
 
     public void setSpecularColor(Vector4f specularColor) {
         this.specularColor = specularColor;
+    }
+
+    public String getNormalMapPath() {
+        return normalMapPath;
+    }
+
+    public void setNormalMapPath(String normalMapPath) {
+        this.normalMapPath = normalMapPath;
     }
 }
