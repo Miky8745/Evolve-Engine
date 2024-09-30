@@ -11,6 +11,7 @@ import com.nsg.evolve.engine.render.shaders.Shaders;
 import com.nsg.evolve.engine.render.shaders.Uniforms;
 import com.nsg.evolve.engine.scene.Fog;
 import com.nsg.evolve.engine.scene.Scene;
+import com.nsg.evolve.engine.scene.animations.AnimationData;
 import com.nsg.evolve.engine.scene.lighting.SceneLights;
 import com.nsg.evolve.engine.scene.lighting.lights.AmbientLight;
 import com.nsg.evolve.engine.scene.lighting.lights.DirectionalLight;
@@ -29,11 +30,11 @@ import static org.lwjgl.opengl.GL30.*;
 
 public class SceneRender implements IRenderer {
 
-    private Shaders shaderProgram;
-    private Uniforms uniformsMap;
-
     private static final int MAX_POINT_LIGHTS = 5;
     private static final int MAX_SPOT_LIGHTS = 5;
+
+    private Shaders shaderProgram;
+    private Uniforms uniformsMap;
 
     public SceneRender() {
         List<Shaders.ShaderModuleData> shaderModuleDataList = new ArrayList<>();
@@ -44,25 +45,23 @@ public class SceneRender implements IRenderer {
         createUniforms();
     }
 
+    public void cleanup() {
+        shaderProgram.cleanup();
+    }
+
     private void createUniforms() {
         uniformsMap = new Uniforms(shaderProgram.getProgramId());
         uniformsMap.createUniform("projectionMatrix");
         uniformsMap.createUniform("modelMatrix");
-        uniformsMap.createUniform("txtSampler");
         uniformsMap.createUniform("viewMatrix");
+        uniformsMap.createUniform("bonesMatrices");
+        uniformsMap.createUniform("txtSampler");
         uniformsMap.createUniform("normalSampler");
-
-        uniformsMap.createUniform("fog.activeFog");
-        uniformsMap.createUniform("fog.color");
-        uniformsMap.createUniform("fog.density");
-
-        uniformsMap.createUniform("material.diffuse");
         uniformsMap.createUniform("material.ambient");
         uniformsMap.createUniform("material.diffuse");
         uniformsMap.createUniform("material.specular");
         uniformsMap.createUniform("material.reflectance");
         uniformsMap.createUniform("material.hasNormalMap");
-
         uniformsMap.createUniform("ambientLight.factor");
         uniformsMap.createUniform("ambientLight.color");
 
@@ -90,10 +89,10 @@ public class SceneRender implements IRenderer {
         uniformsMap.createUniform("dirLight.color");
         uniformsMap.createUniform("dirLight.direction");
         uniformsMap.createUniform("dirLight.intensity");
-    }
 
-    public void cleanup() {
-        shaderProgram.cleanup();
+        uniformsMap.createUniform("fog.activeFog");
+        uniformsMap.createUniform("fog.color");
+        uniformsMap.createUniform("fog.density");
     }
 
     public void render(Scene scene) {
@@ -102,13 +101,13 @@ public class SceneRender implements IRenderer {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         shaderProgram.bind();
 
-        updateLights(scene);
-
         uniformsMap.setUniform("projectionMatrix", scene.getProjection().getProjMatrix());
         uniformsMap.setUniform("viewMatrix", scene.getCamera().getViewMatrix());
 
         uniformsMap.setUniform("txtSampler", 0);
         uniformsMap.setUniform("normalSampler", 1);
+
+        updateLights(scene);
 
         Fog fog = scene.getFog();
         uniformsMap.setUniform("fog.activeFog", fog.isActive() ? 1 : 0);
@@ -121,14 +120,16 @@ public class SceneRender implements IRenderer {
             List<Entity> entities = model.getEntitiesList();
 
             for (Material material : model.getMaterialList()) {
-                Texture texture = textureCache.getTexture(material.getTexturePath());
-                glActiveTexture(GL_TEXTURE0);
-                texture.bind();
-
+                uniformsMap.setUniform("material.ambient", material.getAmbientColor());
+                uniformsMap.setUniform("material.diffuse", material.getDiffuseColor());
+                uniformsMap.setUniform("material.specular", material.getSpecularColor());
+                uniformsMap.setUniform("material.reflectance", material.getReflectance());
                 String normalMapPath = material.getNormalMapPath();
                 boolean hasNormalMapPath = normalMapPath != null;
                 uniformsMap.setUniform("material.hasNormalMap", hasNormalMapPath ? 1 : 0);
-
+                Texture texture = textureCache.getTexture(material.getTexturePath());
+                glActiveTexture(GL_TEXTURE0);
+                texture.bind();
                 if (hasNormalMapPath) {
                     Texture normalMapTexture = textureCache.getTexture(normalMapPath);
                     glActiveTexture(GL_TEXTURE1);
@@ -139,11 +140,12 @@ public class SceneRender implements IRenderer {
                     glBindVertexArray(mesh.getVaoId());
                     for (Entity entity : entities) {
                         uniformsMap.setUniform("modelMatrix", entity.getModelMatrix());
-                        uniformsMap.setUniform("material.diffuse", material.getDiffuseColor());
-                        uniformsMap.setUniform("material.ambient", material.getAmbientColor());
-                        uniformsMap.setUniform("material.diffuse", material.getDiffuseColor());
-                        uniformsMap.setUniform("material.specular", material.getSpecularColor());
-                        uniformsMap.setUniform("material.reflectance", material.getReflectance());
+                        AnimationData animationData = entity.getAnimationData();
+                        if (animationData == null) {
+                            uniformsMap.setUniform("bonesMatrices", AnimationData.DEFAULT_BONES_MATRICES);
+                        } else {
+                            uniformsMap.setUniform("bonesMatrices", animationData.getCurrentFrame().boneMatrices());
+                        }
                         glDrawElements(GL_TRIANGLES, mesh.getNumVertices(), GL_UNSIGNED_INT, 0);
                     }
                 }
@@ -153,7 +155,6 @@ public class SceneRender implements IRenderer {
         glBindVertexArray(0);
 
         shaderProgram.unbind();
-        glDisable(GL_BLEND);
     }
 
     private void updateLights(Scene scene) {

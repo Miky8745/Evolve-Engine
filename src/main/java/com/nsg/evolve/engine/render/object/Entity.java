@@ -1,5 +1,6 @@
 package com.nsg.evolve.engine.render.object;
 
+import com.nsg.evolve.engine.scene.animations.AnimationData;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -8,6 +9,7 @@ public class Entity {
 
     private final String id;
     private final String modelId;
+    private AnimationData animationData;
     private Matrix4f modelMatrix;
     private Vector3f position;
     private Quaternionf rotation;
@@ -20,6 +22,10 @@ public class Entity {
         position = new Vector3f();
         rotation = new Quaternionf();
         scale = 1;
+    }
+
+    public AnimationData getAnimationData() {
+        return animationData;
     }
 
     public String getId() {
@@ -44,6 +50,10 @@ public class Entity {
 
     public float getScale() {
         return scale;
+    }
+
+    public void setAnimationData(AnimationData animationData) {
+        this.animationData = animationData;
     }
 
     public final void setPosition(float x, float y, float z) {

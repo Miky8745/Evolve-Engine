@@ -7,13 +7,13 @@ import com.nsg.evolve.engine.interfaces.IAppLogic;
 import com.nsg.evolve.engine.render.Render;
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Model;
-import com.nsg.evolve.engine.scene.Camera;
-import com.nsg.evolve.engine.scene.Fog;
-import com.nsg.evolve.engine.scene.ModelLoader;
-import com.nsg.evolve.engine.scene.Scene;
+import com.nsg.evolve.engine.scene.*;
+import com.nsg.evolve.engine.scene.animations.AnimationData;
 import com.nsg.evolve.engine.scene.lighting.SceneLights;
+import com.nsg.evolve.engine.scene.lighting.lights.AmbientLight;
 import com.nsg.evolve.engine.scene.lighting.lights.DirectionalLight;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -24,6 +24,8 @@ public class Main implements IAppLogic {
     private float lightAngle;
     private Entity cube;
     private float rotation;
+    private boolean testCube = false;
+    private AnimationData animationData;
 
     public static void main(String[] args) {
         Main main = new Main();
@@ -44,53 +46,51 @@ public class Main implements IAppLogic {
 
     @Override
     public void init(Window window, Scene scene, Render render) {
-        String wallNoNormalsModelId = "quad-no-normals-model";
-        Model quadModelNoNormals = ModelLoader.loadModel(wallNoNormalsModelId, "resources/models/wall/wall_normals.obj",
-                scene.getTextureCache());
-        scene.addModel(quadModelNoNormals);
+        String terrainModelId = "terrain";
+        Model terrainModel = ModelLoader.loadModel(terrainModelId, "resources/models/terrain/terrain.obj",
+                scene.getTextureCache(), false);
+        scene.addModel(terrainModel);
+        Entity terrainEntity = new Entity("terrainEntity", terrainModelId);
+        terrainEntity.setScale(100.0f);
+        terrainEntity.updateModelMatrix();
+        scene.addEntity(terrainEntity);
 
-        Entity wallLeftEntity = new Entity("wallLeftEntity", wallNoNormalsModelId);
-        wallLeftEntity.setPosition(-3f, 0, 0);
-        wallLeftEntity.setScale(2.0f);
-        wallLeftEntity.updateModelMatrix();
-        scene.addEntity(wallLeftEntity);
-
-        String wallModelId = "quad-model";
-        Model quadModel = ModelLoader.loadModel(wallModelId, "resources/models/wall/wall.obj",
-                scene.getTextureCache());
-        scene.addModel(quadModel);
-
-        String cubeId = "cube";
-        Model cubeModel = ModelLoader.loadModel(cubeId, "resources/models/cube/cube.obj", scene.getTextureCache());
-        scene.addModel(cubeModel);
-
-        cube = new Entity("cubeEntity", cubeId);
-        cube.setPosition(0,0,0);
-        cube.updateModelMatrix();
-        scene.addEntity(cube);
-
-        Entity wallRightEntity = new Entity("wallRightEntity", wallModelId);
-        wallRightEntity.setPosition(3f, 0, 0);
-        wallRightEntity.setScale(2.0f);
-        wallRightEntity.updateModelMatrix();
-        scene.addEntity(wallRightEntity);
+        String bobModelId = "bobModel";
+        Model bobModel = ModelLoader.loadModel(bobModelId, "resources/models/bob/boblamp.md5mesh",
+                scene.getTextureCache(), true);
+        scene.addModel(bobModel);
+        Entity bobEntity = new Entity("bobEntity", bobModelId);
+        bobEntity.setScale(0.05f);
+        bobEntity.updateModelMatrix();
+        animationData = new AnimationData(bobModel.getAnimationList().get(0));
+        bobEntity.setAnimationData(animationData);
+        scene.addEntity(bobEntity);
 
         SceneLights sceneLights = new SceneLights();
-        sceneLights.getAmbientLight().setIntensity(0.2f);
+        AmbientLight ambientLight = sceneLights.getAmbientLight();
+        ambientLight.setIntensity(0.5f);
+        ambientLight.setColor(0.3f, 0.3f, 0.3f);
+
         DirectionalLight dirLight = sceneLights.getDirLight();
-        dirLight.setPosition(1, 1, 0);
+        dirLight.setPosition(0, 1, 0);
         dirLight.setIntensity(1.0f);
         scene.setSceneLights(sceneLights);
 
-        Fog fog = new Fog();
-        scene.setFog(fog);
+        SkyBox skyBox = new SkyBox("resources/models/skybox/skybox.obj", scene.getTextureCache());
+        skyBox.getSkyBoxEntity().setScale(1);
+        skyBox.getSkyBoxEntity().updateModelMatrix();
+        scene.setSkyBox(skyBox);
+
+        scene.setFog(new Fog(true, new Vector3f(0.5f, 0.5f, 0.5f), 0.1f));
 
         Camera camera = scene.getCamera();
-        camera.moveUp(5.0f);
-        camera.addRotation((float) Math.toRadians(90), 0);
+        camera.setPosition(-1.5f, 3.0f, 4.5f);
+        camera.addRotation((float) Math.toRadians(15.0f), (float) Math.toRadians(390.f));
 
-        lightAngle = -35;
+        lightAngle = 0;
+        summonTestCube(scene);
     }
+
     @Override
     public void input(Window window, Scene scene, long diffTimeMillis, boolean inputConsumed) {
         if (inputConsumed) {
@@ -146,11 +146,27 @@ public class Main implements IAppLogic {
 
     @Override
     public void update(Window window, Scene scene, long diffTimeMillis) {
-        rotation += 1.5f;
-        if (rotation > 360) {
-            rotation = 0;
+        animationData.nextFrame();
+
+        if (testCube) {
+            rotation += 1.5f;
+            if (rotation > 360) {
+                rotation = 0;
+            }
+            cube.setRotation(1, 1, 1, (float) Math.toRadians(rotation));
+            cube.updateModelMatrix();
         }
-        cube.setRotation(1, 1, 1, (float) Math.toRadians(rotation));
+    }
+
+    public void summonTestCube(Scene scene) {
+        testCube = true;
+        String cubeId = "cube";
+        Model cubeModel = ModelLoader.loadModel(cubeId, "resources/models/cube/cube.obj", scene.getTextureCache(), false);
+        scene.addModel(cubeModel);
+
+        cube = new Entity("cubeEntity", cubeId);
+        cube.setPosition(2,1,0);
         cube.updateModelMatrix();
+        scene.addEntity(cube);
     }
 }

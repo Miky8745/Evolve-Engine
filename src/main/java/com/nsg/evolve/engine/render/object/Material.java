@@ -65,7 +65,7 @@ public class Material {
     }
 
     public Vector4f getSpecularColor() {
-        return specularColor;
+        return specularColor != null ? specularColor : new Vector4f(0,0,0,0);
     }
 
     public void setSpecularColor(Vector4f specularColor) {
