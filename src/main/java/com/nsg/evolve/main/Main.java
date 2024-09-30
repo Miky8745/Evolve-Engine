@@ -46,25 +46,9 @@ public class Main implements IAppLogic {
 
     @Override
     public void init(Window window, Scene scene, Render render) {
-        String terrainModelId = "terrain";
-        Model terrainModel = ModelLoader.loadModel(terrainModelId, "resources/models/terrain/terrain.obj",
-                scene.getTextureCache(), false);
-        scene.addModel(terrainModel);
-        Entity terrainEntity = new Entity("terrainEntity", terrainModelId);
-        terrainEntity.setScale(100.0f);
-        terrainEntity.updateModelMatrix();
-        scene.addEntity(terrainEntity);
+        summonTerrain(scene);
 
-        String bobModelId = "bobModel";
-        Model bobModel = ModelLoader.loadModel(bobModelId, "resources/models/bob/boblamp.md5mesh",
-                scene.getTextureCache(), true);
-        scene.addModel(bobModel);
-        Entity bobEntity = new Entity("bobEntity", bobModelId);
-        bobEntity.setScale(0.05f);
-        bobEntity.updateModelMatrix();
-        animationData = new AnimationData(bobModel.getAnimationList().get(0));
-        bobEntity.setAnimationData(animationData);
-        scene.addEntity(bobEntity);
+        summonTestAnimation(scene);
 
         SceneLights sceneLights = new SceneLights();
         AmbientLight ambientLight = sceneLights.getAmbientLight();
@@ -168,5 +152,29 @@ public class Main implements IAppLogic {
         cube.setPosition(2,1,0);
         cube.updateModelMatrix();
         scene.addEntity(cube);
+    }
+
+    public void summonTestAnimation(Scene scene) {
+        String bobModelId = "bobModel";
+        Model bobModel = ModelLoader.loadModel(bobModelId, "resources/models/bob/boblamp.md5mesh",
+                scene.getTextureCache(), true);
+        scene.addModel(bobModel);
+        Entity bobEntity = new Entity("bobEntity", bobModelId);
+        bobEntity.setScale(0.05f);
+        bobEntity.updateModelMatrix();
+        animationData = new AnimationData(bobModel.getAnimationList().get(0));
+        bobEntity.setAnimationData(animationData);
+        scene.addEntity(bobEntity);
+    }
+
+    public void summonTerrain(Scene scene) {
+        String terrainModelId = "terrain";
+        Model terrainModel = ModelLoader.loadModel(terrainModelId, "resources/models/terrain/terrain.obj",
+                scene.getTextureCache(), false);
+        scene.addModel(terrainModel);
+        Entity terrainEntity = new Entity("terrainEntity", terrainModelId);
+        terrainEntity.setScale(100.0f);
+        terrainEntity.updateModelMatrix();
+        scene.addEntity(terrainEntity);
     }
 }
