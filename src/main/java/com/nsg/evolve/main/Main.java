@@ -12,8 +12,13 @@ import com.nsg.evolve.engine.scene.animations.AnimationData;
 import com.nsg.evolve.engine.scene.lighting.SceneLights;
 import com.nsg.evolve.engine.scene.lighting.lights.AmbientLight;
 import com.nsg.evolve.engine.scene.lighting.lights.DirectionalLight;
+import com.nsg.evolve.engine.sound.SoundBuffer;
+import com.nsg.evolve.engine.sound.SoundListener;
+import com.nsg.evolve.engine.sound.SoundManager;
+import com.nsg.evolve.engine.sound.SoundSource;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.lwjgl.openal.AL11;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -26,6 +31,8 @@ public class Main implements IAppLogic {
     private float rotation;
     private boolean testCube = false;
     private AnimationData animationData;
+    private SoundSource playerSoundSource;
+    private SoundManager soundMgr;
 
     public static void main(String[] args) {
         Main main = new Main();
@@ -41,14 +48,12 @@ public class Main implements IAppLogic {
 
     @Override
     public void cleanup() {
-        // Nothing to be done yet
+        soundMgr.cleanup();
     }
 
     @Override
     public void init(Window window, Scene scene, Render render) {
         summonTerrain(scene);
-
-        summonTestAnimation(scene);
 
         SceneLights sceneLights = new SceneLights();
         AmbientLight ambientLight = sceneLights.getAmbientLight();
@@ -70,6 +75,8 @@ public class Main implements IAppLogic {
         Camera camera = scene.getCamera();
         camera.setPosition(-1.5f, 3.0f, 4.5f);
         camera.addRotation((float) Math.toRadians(15.0f), (float) Math.toRadians(390.f));
+
+        summonTestAnimation(scene, camera);
 
         lightAngle = 0;
         summonTestCube(scene);
@@ -131,6 +138,9 @@ public class Main implements IAppLogic {
     @Override
     public void update(Window window, Scene scene, long diffTimeMillis) {
         animationData.nextFrame();
+        if (animationData.getCurrentFrameIdx() == 46) {
+            playerSoundSource.play();
+        }
 
         if (testCube) {
             rotation += 1.5f;
@@ -154,7 +164,7 @@ public class Main implements IAppLogic {
         scene.addEntity(cube);
     }
 
-    public void summonTestAnimation(Scene scene) {
+    public void summonTestAnimation(Scene scene, Camera camera) {
         String bobModelId = "bobModel";
         Model bobModel = ModelLoader.loadModel(bobModelId, "resources/models/bob/boblamp.md5mesh",
                 scene.getTextureCache(), true);
@@ -165,6 +175,7 @@ public class Main implements IAppLogic {
         animationData = new AnimationData(bobModel.getAnimationList().get(0));
         bobEntity.setAnimationData(animationData);
         scene.addEntity(bobEntity);
+        initSounds(bobEntity.getPosition(), camera);
     }
 
     public void summonTerrain(Scene scene) {
@@ -176,5 +187,25 @@ public class Main implements IAppLogic {
         terrainEntity.setScale(100.0f);
         terrainEntity.updateModelMatrix();
         scene.addEntity(terrainEntity);
+    }
+
+    private void initSounds(Vector3f position, Camera camera) {
+        soundMgr = new SoundManager();
+        soundMgr.setAttenuationModel(AL11.AL_EXPONENT_DISTANCE);
+        soundMgr.setListener(new SoundListener(camera.getPosition()));
+
+        SoundBuffer buffer = new SoundBuffer("resources/sounds/creak1.ogg");
+        soundMgr.addSoundBuffer(buffer);
+        playerSoundSource = new SoundSource(false, false);
+        playerSoundSource.setPosition(position);
+        playerSoundSource.setBuffer(buffer.getBufferId());
+        soundMgr.addSoundSource("CREAK", playerSoundSource);
+
+        buffer = new SoundBuffer("resources/sounds/woo_scary.ogg");
+        soundMgr.addSoundBuffer(buffer);
+        SoundSource source = new SoundSource(true, true);
+        source.setBuffer(buffer.getBufferId());
+        soundMgr.addSoundSource("MUSIC", source);
+        source.play();
     }
 }
