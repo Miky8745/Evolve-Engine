@@ -32,7 +32,6 @@ public class ShadowRender implements IRenderer {
         List<Shaders.ShaderModuleData> shaderModuleDataList = new ArrayList<>();
         shaderModuleDataList.add(new Shaders.ShaderModuleData(genPath("shaders/shadow/shadow.vert"), GL_VERTEX_SHADER));
         shaderProgram = new Shaders(shaderModuleDataList);
-        //shaderProgram.validate();
 
         shadowBuffer = new ShadowBuffer();
 

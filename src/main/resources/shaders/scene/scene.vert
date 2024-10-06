@@ -58,7 +58,8 @@ void main()
     }
 
     mat4 modelViewMatrix = viewMatrix * modelMatrix;
-    vec4 mvPosition =  modelViewMatrix * initPos;
+    vec4 mvPosition = vec4(0,0,0,0);
+    mvPosition = modelViewMatrix * initPos;
     gl_Position   = projectionMatrix * mvPosition;
     outPosition   = mvPosition.xyz;
     outNormal     = normalize(modelViewMatrix * initNormal).xyz;

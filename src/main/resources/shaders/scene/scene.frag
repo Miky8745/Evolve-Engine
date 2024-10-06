@@ -163,7 +163,8 @@ float textureProj(vec4 shadowCoord, vec2 offset, int idx) {
 }
 
 float calcShadow(vec4 worldPosition, int idx) {
-    vec4 shadowMapPosition = cascadeshadows[idx].projViewMatrix * worldPosition;
+    vec4 shadowMapPosition = vec4(0,0,0,0);
+    shadowMapPosition = cascadeshadows[idx].projViewMatrix * worldPosition;
     float shadow = 1.0;
     vec4 shadowCoord = (shadowMapPosition / shadowMapPosition.w) * 0.5 + 0.5;
     shadow = textureProj(shadowCoord, vec2(0, 0), idx);

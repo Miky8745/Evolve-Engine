@@ -78,7 +78,7 @@ public class Main implements IAppLogic {
 
         summonTestAnimation(scene, camera);
 
-        lightAngle = 0;
+        lightAngle = 2.6f;
         summonTestCube(scene);
     }
 
@@ -109,12 +109,12 @@ public class Main implements IAppLogic {
         }
 
         if (window.isKeyPressed(GLFW_KEY_LEFT)) {
-            lightAngle -= 2.5f;
+            lightAngle -= 0.5f;
             if (lightAngle < -90) {
                 lightAngle = -90;
             }
         } else if (window.isKeyPressed(GLFW_KEY_RIGHT)) {
-            lightAngle += 2.5f;
+            lightAngle += 0.5f;
             if (lightAngle > 90) {
                 lightAngle = 90;
             }
@@ -133,6 +133,7 @@ public class Main implements IAppLogic {
         double angRad = Math.toRadians(lightAngle);
         dirLight.getDirection().x = (float) Math.sin(angRad);
         dirLight.getDirection().y = (float) Math.cos(angRad);
+        System.out.println(dirLight.getDirection());
     }
 
     @Override
