@@ -13,16 +13,19 @@ import static org.lwjgl.opengl.GL11.*;
 public class Render {
 
     private List<IRenderer> renderers;
+    private ShadowRender shadowRender;
 
     public Render(Window window) {
         GL.createCapabilities();
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
+        shadowRender = new ShadowRender();
         renderers = List.of(
                 new SceneRender(),
                 new GuiRender(window),
-                new SkyBoxRender()
+                new SkyBoxRender(),
+                shadowRender
         );
     }
 
@@ -36,7 +39,7 @@ public class Render {
         glViewport(0, 0, window.getWidth(), window.getHeight());
 
         for (IRenderer renderer : renderers) {
-            renderer.render(scene);
+            renderer.render(scene, shadowRender);
         }
     }
 

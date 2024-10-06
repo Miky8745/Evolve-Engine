@@ -9,6 +9,7 @@ import com.nsg.evolve.engine.render.object.texture.Texture;
 import com.nsg.evolve.engine.render.object.texture.TextureCache;
 import com.nsg.evolve.engine.render.shaders.Shaders;
 import com.nsg.evolve.engine.render.shaders.Uniforms;
+import com.nsg.evolve.engine.render.shadows.CascadeShadow;
 import com.nsg.evolve.engine.scene.Fog;
 import com.nsg.evolve.engine.scene.Scene;
 import com.nsg.evolve.engine.scene.animations.AnimationData;
@@ -93,9 +94,16 @@ public class SceneRender implements IRenderer {
         uniformsMap.createUniform("fog.activeFog");
         uniformsMap.createUniform("fog.color");
         uniformsMap.createUniform("fog.density");
+
+        for (int i = 0; i < CascadeShadow.SHADOW_MAP_CASCADE_COUNT; i++) {
+            uniformsMap.createUniform("shadowMap[" + i + "]");
+            uniformsMap.createUniform("cascadeshadows[" + i + "]" + ".projViewMatrix");
+            uniformsMap.createUniform("cascadeshadows[" + i + "]" + ".splitDistance");
+        }
     }
 
-    public void render(Scene scene) {
+    @Override
+    public void render(Scene scene, ShadowRender shadowRender) {
         glEnable(GL_BLEND);
         glBlendEquation(GL_FUNC_ADD);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -106,6 +114,17 @@ public class SceneRender implements IRenderer {
 
         uniformsMap.setUniform("txtSampler", 0);
         uniformsMap.setUniform("normalSampler", 1);
+
+        int start = 2;
+        List<CascadeShadow> cascadeShadows = shadowRender.getCascadeShadows();
+        for (int i = 0; i < CascadeShadow.SHADOW_MAP_CASCADE_COUNT; i++) {
+            uniformsMap.setUniform("shadowMap[" + i + "]", start + i);
+            CascadeShadow cascadeShadow = cascadeShadows.get(i);
+            uniformsMap.setUniform("cascadeshadows[" + i + "]" + ".projViewMatrix", cascadeShadow.getProjViewMatrix());
+            uniformsMap.setUniform("cascadeshadows[" + i + "]" + ".splitDistance", cascadeShadow.getSplitDistance());
+        }
+
+        shadowRender.getShadowBuffer().bindTextures(GL_TEXTURE2);
 
         updateLights(scene);
 

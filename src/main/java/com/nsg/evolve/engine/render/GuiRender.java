@@ -74,7 +74,8 @@ public class GuiRender implements IResizableRenderer {
         scale = new Vector2f();
     }
 
-    public void render(Scene scene) {
+    @Override
+    public void render(Scene scene, ShadowRender ignored) {
         IGuiInstance guiInstance = scene.getGuiInstance();
         if (guiInstance == null) {
             return;

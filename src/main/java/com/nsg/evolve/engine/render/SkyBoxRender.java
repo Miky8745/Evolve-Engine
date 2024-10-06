@@ -41,7 +41,8 @@ public class SkyBoxRender implements IRenderer {
         createUniforms();
     }
 
-    public void render(Scene scene) {
+    @Override
+    public void render(Scene scene, ShadowRender ignored) {
         SkyBox skyBox = scene.getSkyBox();
         if (skyBox == null) {
             return;

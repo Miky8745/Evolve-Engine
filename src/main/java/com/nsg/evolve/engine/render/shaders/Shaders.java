@@ -13,6 +13,7 @@ public class Shaders {
     private final int programId;
 
     public Shaders(List<ShaderModuleData> shaderModuleDataList) {
+        Integer test = glGetError();
         programId = glCreateProgram();
         if (programId == 0) {
             throw new RuntimeException("Could not create Shader");
