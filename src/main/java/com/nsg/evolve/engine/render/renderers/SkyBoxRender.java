@@ -1,4 +1,4 @@
-package com.nsg.evolve.engine.render;
+package com.nsg.evolve.engine.render.renderers;
 
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Material;
@@ -40,7 +40,7 @@ public class SkyBoxRender {
         createUniforms();
     }
 
-    public void render(Scene scene, ShadowRender ignored) {
+    public void render(Scene scene) {
         SkyBox skyBox = scene.getSkyBox();
         if (skyBox == null) {
             return;

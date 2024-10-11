@@ -1,5 +1,6 @@
-package com.nsg.evolve.engine.render;
+package com.nsg.evolve.engine.render.renderers;
 
+import com.nsg.evolve.engine.render.GBuffer;
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Material;
 import com.nsg.evolve.engine.render.object.Mesh;
@@ -8,8 +9,6 @@ import com.nsg.evolve.engine.render.object.texture.Texture;
 import com.nsg.evolve.engine.render.object.texture.TextureCache;
 import com.nsg.evolve.engine.render.shaders.Shaders;
 import com.nsg.evolve.engine.render.shaders.Uniforms;
-import com.nsg.evolve.engine.render.shadows.CascadeShadow;
-import com.nsg.evolve.engine.scene.Fog;
 import com.nsg.evolve.engine.scene.Scene;
 import com.nsg.evolve.engine.scene.animations.AnimationData;
 import com.nsg.evolve.engine.scene.lighting.SceneLights;
@@ -57,56 +56,18 @@ public class SceneRender {
         uniformsMap.createUniform("bonesMatrices");
         uniformsMap.createUniform("txtSampler");
         uniformsMap.createUniform("normalSampler");
-        uniformsMap.createUniform("material.ambient");
         uniformsMap.createUniform("material.diffuse");
         uniformsMap.createUniform("material.specular");
         uniformsMap.createUniform("material.reflectance");
         uniformsMap.createUniform("material.hasNormalMap");
-        uniformsMap.createUniform("ambientLight.factor");
-        uniformsMap.createUniform("ambientLight.color");
-
-        for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
-            String name = "pointLights[" + i + "]";
-            uniformsMap.createUniform(name + ".position");
-            uniformsMap.createUniform(name + ".color");
-            uniformsMap.createUniform(name + ".intensity");
-            uniformsMap.createUniform(name + ".att.constant");
-            uniformsMap.createUniform(name + ".att.linear");
-            uniformsMap.createUniform(name + ".att.exponent");
-        }
-        for (int i = 0; i < MAX_SPOT_LIGHTS; i++) {
-            String name = "spotLights[" + i + "]";
-            uniformsMap.createUniform(name + ".pl.position");
-            uniformsMap.createUniform(name + ".pl.color");
-            uniformsMap.createUniform(name + ".pl.intensity");
-            uniformsMap.createUniform(name + ".pl.att.constant");
-            uniformsMap.createUniform(name + ".pl.att.linear");
-            uniformsMap.createUniform(name + ".pl.att.exponent");
-            uniformsMap.createUniform(name + ".conedir");
-            uniformsMap.createUniform(name + ".cutoff");
-        }
-
-        uniformsMap.createUniform("dirLight.color");
-        uniformsMap.createUniform("dirLight.direction");
-        uniformsMap.createUniform("dirLight.intensity");
-
-        uniformsMap.createUniform("fog.activeFog");
-        uniformsMap.createUniform("fog.color");
-        uniformsMap.createUniform("fog.density");
-
-        for (int i = 0; i < CascadeShadow.SHADOW_MAP_CASCADE_COUNT; i++) {
-            uniformsMap.createUniform("shadowMap[" + i + "]");
-            uniformsMap.createUniform("cascadeshadows[" + i + "]" + ".projViewMatrix");
-            uniformsMap.createUniform("cascadeshadows[" + i + "]" + ".splitDistance");
-        }
-
-        uniformsMap.createUniform("selected");
     }
 
-    public void render(Scene scene, ShadowRender shadowRender) {
-        glEnable(GL_BLEND);
-        glBlendEquation(GL_FUNC_ADD);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    public void render(Scene scene, GBuffer gBuffer) {
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gBuffer.getGBufferId());
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glViewport(0, 0, gBuffer.getWidth(), gBuffer.getHeight());
+        glDisable(GL_BLEND);
+
         shaderProgram.bind();
 
         uniformsMap.setUniform("projectionMatrix", scene.getProjection().getProjMatrix());
@@ -115,32 +76,12 @@ public class SceneRender {
         uniformsMap.setUniform("txtSampler", 0);
         uniformsMap.setUniform("normalSampler", 1);
 
-        int start = 2;
-        List<CascadeShadow> cascadeShadows = shadowRender.getCascadeShadows();
-        for (int i = 0; i < CascadeShadow.SHADOW_MAP_CASCADE_COUNT; i++) {
-            uniformsMap.setUniform("shadowMap[" + i + "]", start + i);
-            CascadeShadow cascadeShadow = cascadeShadows.get(i);
-            uniformsMap.setUniform("cascadeshadows[" + i + "]" + ".projViewMatrix", cascadeShadow.getProjViewMatrix());
-            uniformsMap.setUniform("cascadeshadows[" + i + "]" + ".splitDistance", cascadeShadow.getSplitDistance());
-        }
-
-        shadowRender.getShadowBuffer().bindTextures(GL_TEXTURE2);
-
-        updateLights(scene);
-
-        Fog fog = scene.getFog();
-        uniformsMap.setUniform("fog.activeFog", fog.isActive() ? 1 : 0);
-        uniformsMap.setUniform("fog.color", fog.getColor());
-        uniformsMap.setUniform("fog.density", fog.getDensity());
-
         Collection<Model> models = scene.getModelMap().values();
         TextureCache textureCache = scene.getTextureCache();
-        Entity selectedEntity = scene.getSelectedEntity();
         for (Model model : models) {
             List<Entity> entities = model.getEntitiesList();
 
             for (Material material : model.getMaterialList()) {
-                uniformsMap.setUniform("material.ambient", material.getAmbientColor());
                 uniformsMap.setUniform("material.diffuse", material.getDiffuseColor());
                 uniformsMap.setUniform("material.specular", material.getSpecularColor());
                 uniformsMap.setUniform("material.reflectance", material.getReflectance());
@@ -159,9 +100,6 @@ public class SceneRender {
                 for (Mesh mesh : material.getMeshList()) {
                     glBindVertexArray(mesh.getVaoId());
                     for (Entity entity : entities) {
-                        uniformsMap.setUniform("selected",
-                                selectedEntity != null && selectedEntity.getId().equals(entity.getId()) ? 1 : 0);
-
                         uniformsMap.setUniform("modelMatrix", entity.getModelMatrix());
                         AnimationData animationData = entity.getAnimationData();
                         if (animationData == null) {
@@ -176,7 +114,7 @@ public class SceneRender {
         }
 
         glBindVertexArray(0);
-
+        glEnable(GL_BLEND);
         shaderProgram.unbind();
     }
 

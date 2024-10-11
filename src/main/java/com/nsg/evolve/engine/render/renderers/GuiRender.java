@@ -1,4 +1,4 @@
-package com.nsg.evolve.engine.render;
+package com.nsg.evolve.engine.render.renderers;
 
 import com.nsg.evolve.engine.Window;
 import com.nsg.evolve.engine.interfaces.IGuiInstance;
@@ -73,7 +73,7 @@ public class GuiRender {
         scale = new Vector2f();
     }
 
-    public void render(Scene scene, ShadowRender ignored) {
+    public void render(Scene scene) {
         IGuiInstance guiInstance = scene.getGuiInstance();
         if (guiInstance == null) {
             return;

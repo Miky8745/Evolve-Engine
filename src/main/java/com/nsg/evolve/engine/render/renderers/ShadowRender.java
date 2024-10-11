@@ -1,4 +1,4 @@
-package com.nsg.evolve.engine.render;
+package com.nsg.evolve.engine.render.renderers;
 
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Material;
@@ -63,7 +63,7 @@ public class ShadowRender {
         return shadowBuffer;
     }
 
-    public void render(Scene scene, ShadowRender ignored) {
+    public void render(Scene scene) {
         CascadeShadow.updateCascadeShadows(cascadeShadows, scene);
 
         glBindFramebuffer(GL_FRAMEBUFFER, shadowBuffer.getDepthMapFBO());
