@@ -2,7 +2,6 @@ package com.nsg.evolve.engine.render;
 
 import com.nsg.evolve.engine.Window;
 import com.nsg.evolve.engine.interfaces.IGuiInstance;
-import com.nsg.evolve.engine.interfaces.IResizableRenderer;
 import com.nsg.evolve.engine.render.object.GuiMesh;
 import com.nsg.evolve.engine.render.object.texture.Texture;
 import com.nsg.evolve.engine.render.shaders.Shaders;
@@ -25,7 +24,7 @@ import static com.nsg.evolve.engine.Utilities.genPath;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL32.*;
 
-public class GuiRender implements IResizableRenderer {
+public class GuiRender {
 
     private GuiMesh guiMesh;
     private GLFWKeyCallback prevKeyCallBack;
@@ -74,7 +73,6 @@ public class GuiRender implements IResizableRenderer {
         scale = new Vector2f();
     }
 
-    @Override
     public void render(Scene scene, ShadowRender ignored) {
         IGuiInstance guiInstance = scene.getGuiInstance();
         if (guiInstance == null) {

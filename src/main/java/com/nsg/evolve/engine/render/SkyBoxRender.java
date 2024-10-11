@@ -1,6 +1,5 @@
 package com.nsg.evolve.engine.render;
 
-import com.nsg.evolve.engine.interfaces.IRenderer;
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Material;
 import com.nsg.evolve.engine.render.object.Mesh;
@@ -24,7 +23,7 @@ import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
-public class SkyBoxRender implements IRenderer {
+public class SkyBoxRender {
 
     private Shaders shaderProgram;
 
@@ -41,7 +40,6 @@ public class SkyBoxRender implements IRenderer {
         createUniforms();
     }
 
-    @Override
     public void render(Scene scene, ShadowRender ignored) {
         SkyBox skyBox = scene.getSkyBox();
         if (skyBox == null) {

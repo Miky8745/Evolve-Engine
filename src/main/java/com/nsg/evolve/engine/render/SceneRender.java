@@ -1,6 +1,5 @@
 package com.nsg.evolve.engine.render;
 
-import com.nsg.evolve.engine.interfaces.IRenderer;
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Material;
 import com.nsg.evolve.engine.render.object.Mesh;
@@ -29,7 +28,7 @@ import java.util.List;
 import static com.nsg.evolve.engine.Utilities.genPath;
 import static org.lwjgl.opengl.GL30.*;
 
-public class SceneRender implements IRenderer {
+public class SceneRender {
 
     private static final int MAX_POINT_LIGHTS = 5;
     private static final int MAX_SPOT_LIGHTS = 5;
@@ -104,7 +103,6 @@ public class SceneRender implements IRenderer {
         uniformsMap.createUniform("selected");
     }
 
-    @Override
     public void render(Scene scene, ShadowRender shadowRender) {
         glEnable(GL_BLEND);
         glBlendEquation(GL_FUNC_ADD);

@@ -1,6 +1,5 @@
 package com.nsg.evolve.engine.render;
 
-import com.nsg.evolve.engine.interfaces.IRenderer;
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Material;
 import com.nsg.evolve.engine.render.object.Mesh;
@@ -21,7 +20,7 @@ import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
 import static org.lwjgl.opengl.GL30.*;
 
-public class ShadowRender implements IRenderer {
+public class ShadowRender {
 
     private ArrayList<CascadeShadow> cascadeShadows;
     private Shaders shaderProgram;
@@ -44,7 +43,6 @@ public class ShadowRender implements IRenderer {
         createUniforms();
     }
 
-    @Override
     public void cleanup() {
         shaderProgram.cleanup();
         shadowBuffer.cleanup();
@@ -65,7 +63,6 @@ public class ShadowRender implements IRenderer {
         return shadowBuffer;
     }
 
-    @Override
     public void render(Scene scene, ShadowRender ignored) {
         CascadeShadow.updateCascadeShadows(cascadeShadows, scene);
 

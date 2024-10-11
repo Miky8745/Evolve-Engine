@@ -1,53 +1,51 @@
 package com.nsg.evolve.engine.render;
 
 import com.nsg.evolve.engine.Window;
-import com.nsg.evolve.engine.interfaces.IRenderer;
-import com.nsg.evolve.engine.interfaces.IResizableRenderer;
 import com.nsg.evolve.engine.scene.Scene;
 import org.lwjgl.opengl.GL;
 
-import java.util.List;
-
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
 
 public class Render {
 
-    private List<IRenderer> renderers;
+    private GuiRender guiRender;
+    private SceneRender sceneRender;
     private ShadowRender shadowRender;
+    private SkyBoxRender skyBoxRender;
 
     public Render(Window window) {
         GL.createCapabilities();
+        glEnable(GL_MULTISAMPLE);
         glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
+
+        // Support for transparencies
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        sceneRender = new SceneRender();
+        guiRender = new GuiRender(window);
+        skyBoxRender = new SkyBoxRender();
         shadowRender = new ShadowRender();
-        renderers = List.of(
-                new SceneRender(),
-                new GuiRender(window),
-                new SkyBoxRender(),
-                shadowRender
-        );
     }
 
     public void cleanup() {
-        renderers.forEach(IRenderer::cleanup);
+        sceneRender.cleanup();
+        guiRender.cleanup();
+        skyBoxRender.cleanup();
+        shadowRender.cleanup();
     }
 
     public void render(Window window, Scene scene) {
+        shadowRender.render(scene, shadowRender);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         glViewport(0, 0, window.getWidth(), window.getHeight());
-
-        for (IRenderer renderer : renderers) {
-            renderer.render(scene, shadowRender);
-        }
+        skyBoxRender.render(scene, shadowRender);
+        sceneRender.render(scene, shadowRender);
+        guiRender.render(scene, shadowRender);
     }
 
     public void resize(int width, int height) {
-        for (IRenderer renderer : renderers) {
-            if (renderer instanceof IResizableRenderer resize) {
-                resize.resize(width, height);
-            }
-        }
+        guiRender.resize(width, height);
     }
 }
