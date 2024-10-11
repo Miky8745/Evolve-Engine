@@ -150,7 +150,7 @@ public class Main implements IAppLogic {
         }
 
         if (mouseInput.isLeftButtonPressed()) {
-            selectEntity(window, scene, mouseInput.getCurrentPos());
+            selectEntity(window, scene);
         }
 
         SceneLights sceneLights = scene.getSceneLights();
@@ -185,12 +185,13 @@ public class Main implements IAppLogic {
         cubeEntity2.updateModelMatrix();
     }
 
-    private void selectEntity(Window window, Scene scene, Vector2f mousePos) {
+    private void selectEntity(Window window, Scene scene) {
         int wdwWidth = window.getWidth();
         int wdwHeight = window.getHeight();
 
-        float x = (2 * mousePos.x) / wdwWidth - 1.0f;
-        float y = 1.0f - (2 * mousePos.y) / wdwHeight;
+        // Set mouse position to the center of the screen
+        float x = 0.0f;  // Center of the screen in NDC is 0
+        float y = 0.0f;  // Center of the screen in NDC is 0
         float z = -1.0f;
 
         Matrix4f invProjMatrix = scene.getProjection().getInvProjMatrix();
@@ -227,13 +228,14 @@ public class Main implements IAppLogic {
                                 min.x, min.y, min.z, max.x, max.y, max.z, nearFar) && nearFar.x < closestDistance) {
                             closestDistance = nearFar.x;
                             selectedEntity = entity;
-                            scene.setSelectedEntity(selectedEntity);
                         }
                     }
                 }
                 modelMatrix.identity();
             }
         }
+
+        scene.setSelectedEntity(selectedEntity);
     }
 
     public void summonTestCube(Scene scene) {
