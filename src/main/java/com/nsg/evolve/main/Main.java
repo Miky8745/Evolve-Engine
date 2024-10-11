@@ -150,7 +150,7 @@ public class Main implements IAppLogic {
         }
 
         if (mouseInput.isLeftButtonPressed()) {
-            selectEntity(window, scene);
+            selectEntity(scene);
         }
 
         SceneLights sceneLights = scene.getSceneLights();
@@ -184,10 +184,7 @@ public class Main implements IAppLogic {
         cubeEntity2.updateModelMatrix();
     }
 
-    private void selectEntity(Window window, Scene scene) {
-        int wdwWidth = window.getWidth();
-        int wdwHeight = window.getHeight();
-
+    private void selectEntity(Scene scene) {
         // Set mouse position to the center of the screen
         float x = 0.0f;  // Center of the screen in NDC is 0
         float y = 0.0f;  // Center of the screen in NDC is 0
