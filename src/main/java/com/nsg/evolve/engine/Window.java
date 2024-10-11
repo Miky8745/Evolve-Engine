@@ -1,5 +1,6 @@
 package com.nsg.evolve.engine;
 
+import com.nsg.evolve.engine.input.MouseInput;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.system.MemoryUtil;

@@ -1,6 +1,6 @@
 package com.nsg.evolve.game.guis;
 
-import com.nsg.evolve.engine.MouseInput;
+import com.nsg.evolve.engine.input.MouseInput;
 import com.nsg.evolve.engine.Window;
 import com.nsg.evolve.engine.interfaces.IGuiInstance;
 import com.nsg.evolve.engine.scene.Scene;

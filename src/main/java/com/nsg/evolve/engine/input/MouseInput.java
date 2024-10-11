@@ -1,4 +1,4 @@
-package com.nsg.evolve.engine;
+package com.nsg.evolve.engine.input;
 
 import org.joml.Vector2f;
 
