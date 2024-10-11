@@ -9,9 +9,11 @@ public class Projection {
     private static final float Z_NEAR = 0.01f;
 
     private Matrix4f projMatrix;
+    private Matrix4f invProjMatrix;
 
     public Projection(int width, int height) {
         projMatrix = new Matrix4f();
+        invProjMatrix = new Matrix4f();
         updateProjMatrix(width, height);
     }
 
@@ -21,5 +23,10 @@ public class Projection {
 
     public void updateProjMatrix(int width, int height) {
         projMatrix.setPerspective(FOV, (float) width / height, Z_NEAR, Z_FAR);
+        invProjMatrix.set(projMatrix).invert();
+    }
+
+    public Matrix4f getInvProjMatrix() {
+        return invProjMatrix;
     }
 }

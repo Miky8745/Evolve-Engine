@@ -9,11 +9,13 @@ public class Camera {
     private Vector3f position;
     private Vector2f rotation;
     private Matrix4f viewMatrix;
+    private Matrix4f invViewMatrix;
 
     public Camera() {
         position = new Vector3f(0, 0, 0);  // Initial camera position
         rotation = new Vector2f(0, 0);  // Initial rotation: pitch (x), yaw (y)
         viewMatrix = new Matrix4f();
+        invViewMatrix = new Matrix4f();
         recalculate();  // Set up initial view matrix
     }
 
@@ -28,6 +30,10 @@ public class Camera {
 
     public Matrix4f getViewMatrix() {
         return viewMatrix;
+    }
+
+    public Matrix4f getInvViewMatrix() {
+        return invViewMatrix;
     }
 
     public void moveForward(float distance) {
@@ -84,6 +90,8 @@ public class Camera {
                 .rotateX(rotation.x)  // Pitch (up/down rotation)
                 .rotateY(rotation.y)  // Yaw (left/right rotation)
                 .translate(-position.x, -position.y, -position.z);
+
+        invViewMatrix.set(viewMatrix).invert();
     }
 
     public void setPosition(float x, float y, float z) {

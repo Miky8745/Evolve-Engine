@@ -19,6 +19,7 @@ public class Scene {
     private SceneLights sceneLights;
     private SkyBox skyBox;
     private Fog fog;
+    private Entity selectedEntity;
 
     public Scene(int width, int height) {
         modelMap = new HashMap<>();
@@ -94,5 +95,13 @@ public class Scene {
 
     public void setFog(Fog fog) {
         this.fog = fog;
+    }
+
+    public Entity getSelectedEntity() {
+        return selectedEntity;
+    }
+
+    public void setSelectedEntity(Entity selectedEntity) {
+        this.selectedEntity = selectedEntity;
     }
 }

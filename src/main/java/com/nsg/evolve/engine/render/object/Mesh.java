@@ -1,5 +1,6 @@
 package com.nsg.evolve.engine.render.object;
 
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 
@@ -17,15 +18,21 @@ public class Mesh {
     private int numVertices;
     private int vaoId;
     private List<Integer> vboIdList;
+    private Vector3f aabbMax;
+    private Vector3f aabbMin;
 
     public Mesh(float[] positions, float[] normals, float[] tangents, float[] bitangents, float[] textCoords, int[] indices) {
         this(positions, normals, tangents, bitangents, textCoords, indices,
-                new int[Mesh.MAX_WEIGHTS * positions.length / 3], new float[Mesh.MAX_WEIGHTS * positions.length / 3]);
+                new int[Mesh.MAX_WEIGHTS * positions.length / 3], new float[Mesh.MAX_WEIGHTS * positions.length / 3],
+                new Vector3f(), new Vector3f());
     }
 
     public Mesh(float[] positions, float[] normals, float[] tangents, float[] bitangents, float[] textCoords, int[] indices,
-                int[] boneIndices, float[] weights) {
+                int[] boneIndices, float[] weights, Vector3f aabbMin, Vector3f aabbMax) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
+            this.aabbMin = aabbMin;
+            this.aabbMax = aabbMax;
+
             numVertices = indices.length;
             vboIdList = new ArrayList<>();
 
@@ -126,5 +133,13 @@ public class Mesh {
 
     public final int getVaoId() {
         return vaoId;
+    }
+
+    public Vector3f getAabbMax() {
+        return aabbMax;
+    }
+
+    public Vector3f getAabbMin() {
+        return aabbMin;
     }
 }

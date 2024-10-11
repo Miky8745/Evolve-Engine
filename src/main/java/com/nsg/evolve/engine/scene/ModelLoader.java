@@ -8,6 +8,7 @@ import com.nsg.evolve.engine.render.object.texture.TextureCache;
 import com.nsg.evolve.engine.scene.animations.Node;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.*;
@@ -124,7 +125,7 @@ public class ModelLoader {
     public static Model loadModel(String modelId, String modelPath, TextureCache textureCache, boolean animation) {
         return loadModel(modelId, modelPath, textureCache, aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices |
                 aiProcess_Triangulate | aiProcess_FixInfacingNormals | aiProcess_CalcTangentSpace | aiProcess_LimitBoneWeights |
-                (animation ? 0 : aiProcess_PreTransformVertices));
+                aiProcess_GenBoundingBoxes | (animation ? 0 : aiProcess_PreTransformVertices));
 
     }
 
@@ -352,7 +353,12 @@ public class ModelLoader {
             textCoords = new float[numElements];
         }
 
-        return new Mesh(vertices, normals, tangents, bitangents, textCoords, indices, animMeshData.boneIds, animMeshData.weights);
+        AIAABB aabb = aiMesh.mAABB();
+        Vector3f aabbMin = new Vector3f(aabb.mMin().x(), aabb.mMin().y(), aabb.mMin().z());
+        Vector3f aabbMax = new Vector3f(aabb.mMax().x(), aabb.mMax().y(), aabb.mMax().z());
+
+        return new Mesh(vertices, normals, tangents, bitangents, textCoords, indices, animMeshData.boneIds,
+                animMeshData.weights, aabbMin, aabbMax);
     }
 
     private static float[] processNormals(AIMesh aiMesh) {

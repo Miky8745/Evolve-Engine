@@ -6,6 +6,8 @@ import com.nsg.evolve.engine.Window;
 import com.nsg.evolve.engine.interfaces.IAppLogic;
 import com.nsg.evolve.engine.render.Render;
 import com.nsg.evolve.engine.render.object.Entity;
+import com.nsg.evolve.engine.render.object.Material;
+import com.nsg.evolve.engine.render.object.Mesh;
 import com.nsg.evolve.engine.render.object.Model;
 import com.nsg.evolve.engine.scene.*;
 import com.nsg.evolve.engine.scene.animations.AnimationData;
@@ -16,9 +18,15 @@ import com.nsg.evolve.engine.sound.SoundBuffer;
 import com.nsg.evolve.engine.sound.SoundListener;
 import com.nsg.evolve.engine.sound.SoundManager;
 import com.nsg.evolve.engine.sound.SoundSource;
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
+import org.joml.primitives.Intersectionf;
 import org.lwjgl.openal.AL11;
+
+import java.util.Collection;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -33,6 +41,8 @@ public class Main implements IAppLogic {
     private AnimationData animationData;
     private SoundSource playerSoundSource;
     private SoundManager soundMgr;
+    private Entity cubeEntity1;
+    private Entity cubeEntity2;
 
     public static void main(String[] args) {
         Main main = new Main();
@@ -54,6 +64,17 @@ public class Main implements IAppLogic {
     @Override
     public void init(Window window, Scene scene, Render render) {
         summonTerrain(scene);
+
+        Model cubeModel = ModelLoader.loadModel("cube-model", "resources/models/cube/cube.obj",
+                scene.getTextureCache(), false);
+        scene.addModel(cubeModel);
+        cubeEntity1 = new Entity("cube-entity-1", cubeModel.getId());
+        cubeEntity1.setPosition(0, 2, -1);
+        scene.addEntity(cubeEntity1);
+
+        cubeEntity2 = new Entity("cube-entity-2", cubeModel.getId());
+        cubeEntity2.setPosition(-2, 2, -1);
+        scene.addEntity(cubeEntity2);
 
         SceneLights sceneLights = new SceneLights();
         AmbientLight ambientLight = sceneLights.getAmbientLight();
@@ -128,6 +149,10 @@ public class Main implements IAppLogic {
                     (float) Math.toRadians(displVec.y * MOUSE_SENSITIVITY));
         }
 
+        if (mouseInput.isLeftButtonPressed()) {
+            selectEntity(window, scene, mouseInput.getCurrentPos());
+        }
+
         SceneLights sceneLights = scene.getSceneLights();
         DirectionalLight dirLight = sceneLights.getDirLight();
         double angRad = Math.toRadians(lightAngle);
@@ -143,13 +168,71 @@ public class Main implements IAppLogic {
             playerSoundSource.play();
         }
 
+        rotation += 1.5f;
+        if (rotation > 360) {
+            rotation = 0;
+        }
+
         if (testCube) {
-            rotation += 1.5f;
-            if (rotation > 360) {
-                rotation = 0;
-            }
             cube.setRotation(1, 1, 1, (float) Math.toRadians(rotation));
             cube.updateModelMatrix();
+        }
+
+        cubeEntity1.setRotation(1, 1, 1, (float) Math.toRadians(rotation));
+        cubeEntity1.updateModelMatrix();
+
+        cubeEntity2.setRotation(1, 1, 1, (float) Math.toRadians(360 - rotation));
+        cubeEntity2.updateModelMatrix();
+    }
+
+    private void selectEntity(Window window, Scene scene, Vector2f mousePos) {
+        int wdwWidth = window.getWidth();
+        int wdwHeight = window.getHeight();
+
+        float x = (2 * mousePos.x) / wdwWidth - 1.0f;
+        float y = 1.0f - (2 * mousePos.y) / wdwHeight;
+        float z = -1.0f;
+
+        Matrix4f invProjMatrix = scene.getProjection().getInvProjMatrix();
+        Vector4f mouseDir = new Vector4f(x, y, z, 1.0f);
+        mouseDir.mul(invProjMatrix);
+        mouseDir.z = -1.0f;
+        mouseDir.w = 0.0f;
+
+        Matrix4f invViewMatrix = scene.getCamera().getInvViewMatrix();
+        mouseDir.mul(invViewMatrix);
+        Vector4f min = new Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
+        Vector4f max = new Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
+        Vector2f nearFar = new Vector2f();
+
+        Entity selectedEntity = null;
+        float closestDistance = Float.POSITIVE_INFINITY;
+        Vector3f center = scene.getCamera().getPosition();
+
+        Collection<Model> models = scene.getModelMap().values();
+        Matrix4f modelMatrix = new Matrix4f();
+        for (Model model : models) {
+            List<Entity> entities = model.getEntitiesList();
+            for (Entity entity : entities) {
+                modelMatrix.translate(entity.getPosition()).scale(entity.getScale());
+                for (Material material : model.getMaterialList()) {
+                    for (Mesh mesh : material.getMeshList()) {
+                        Vector3f aabbMin = mesh.getAabbMin();
+                        min.set(aabbMin.x, aabbMin.y, aabbMin.z, 1.0f);
+                        min.mul(modelMatrix);
+                        Vector3f aabMax = mesh.getAabbMax();
+                        max.set(aabMax.x, aabMax.y, aabMax.z, 1.0f);
+                        max.mul(modelMatrix);
+                        if (Intersectionf.intersectRayAab(center.x, center.y, center.z, mouseDir.x, mouseDir.y, mouseDir.z,
+                                min.x, min.y, min.z, max.x, max.y, max.z, nearFar) && nearFar.x < closestDistance) {
+                            closestDistance = nearFar.x;
+                            selectedEntity = entity;
+                            scene.setSelectedEntity(selectedEntity);
+                        }
+                    }
+                }
+                modelMatrix.identity();
+            }
         }
     }
 
