@@ -158,7 +158,6 @@ public class Main implements IAppLogic {
         double angRad = Math.toRadians(lightAngle);
         dirLight.getDirection().x = (float) Math.sin(angRad);
         dirLight.getDirection().y = (float) Math.cos(angRad);
-        System.out.println(dirLight.getDirection());
     }
 
     @Override
