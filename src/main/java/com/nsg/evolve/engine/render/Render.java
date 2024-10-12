@@ -1,6 +1,7 @@
 package com.nsg.evolve.engine.render;
 
 import com.nsg.evolve.engine.Window;
+import com.nsg.evolve.engine.render.buffers.GBuffer;
 import com.nsg.evolve.engine.render.renderers.*;
 import com.nsg.evolve.engine.scene.Scene;
 import org.lwjgl.opengl.GL;

@@ -1,4 +1,4 @@
-package com.nsg.evolve.engine.render.object.texture;
+package com.nsg.evolve.engine.render.object;
 
 import org.lwjgl.system.MemoryStack;
 

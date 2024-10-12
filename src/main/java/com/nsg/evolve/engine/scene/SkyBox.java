@@ -2,7 +2,7 @@ package com.nsg.evolve.engine.scene;
 
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Model;
-import com.nsg.evolve.engine.render.object.texture.TextureCache;
+import com.nsg.evolve.engine.render.object.cache.TextureCache;
 
 public class SkyBox {
 

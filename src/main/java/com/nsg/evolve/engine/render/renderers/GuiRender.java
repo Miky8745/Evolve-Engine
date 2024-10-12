@@ -3,7 +3,7 @@ package com.nsg.evolve.engine.render.renderers;
 import com.nsg.evolve.engine.Window;
 import com.nsg.evolve.engine.interfaces.IGuiInstance;
 import com.nsg.evolve.engine.render.object.GuiMesh;
-import com.nsg.evolve.engine.render.object.texture.Texture;
+import com.nsg.evolve.engine.render.object.Texture;
 import com.nsg.evolve.engine.render.shaders.Shaders;
 import com.nsg.evolve.engine.render.shaders.Uniforms;
 import com.nsg.evolve.engine.scene.Scene;

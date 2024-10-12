@@ -1,4 +1,4 @@
-package com.nsg.evolve.engine.render;
+package com.nsg.evolve.engine.render.renderers;
 
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;

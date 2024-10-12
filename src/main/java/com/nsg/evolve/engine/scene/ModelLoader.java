@@ -4,7 +4,7 @@ import com.nsg.evolve.engine.Utilities;
 import com.nsg.evolve.engine.render.object.Material;
 import com.nsg.evolve.engine.render.object.Mesh;
 import com.nsg.evolve.engine.render.object.Model;
-import com.nsg.evolve.engine.render.object.texture.TextureCache;
+import com.nsg.evolve.engine.render.object.cache.TextureCache;
 import com.nsg.evolve.engine.scene.animations.Node;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;

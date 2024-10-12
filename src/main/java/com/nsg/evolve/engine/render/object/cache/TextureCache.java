@@ -1,4 +1,6 @@
-package com.nsg.evolve.engine.render.object.texture;
+package com.nsg.evolve.engine.render.object.cache;
+
+import com.nsg.evolve.engine.render.object.Texture;
 
 import java.util.HashMap;
 import java.util.Map;

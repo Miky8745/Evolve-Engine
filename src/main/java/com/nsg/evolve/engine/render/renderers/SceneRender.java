@@ -1,12 +1,12 @@
 package com.nsg.evolve.engine.render.renderers;
 
-import com.nsg.evolve.engine.render.GBuffer;
+import com.nsg.evolve.engine.render.buffers.GBuffer;
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Material;
 import com.nsg.evolve.engine.render.object.Mesh;
 import com.nsg.evolve.engine.render.object.Model;
-import com.nsg.evolve.engine.render.object.texture.Texture;
-import com.nsg.evolve.engine.render.object.texture.TextureCache;
+import com.nsg.evolve.engine.render.object.Texture;
+import com.nsg.evolve.engine.render.object.cache.TextureCache;
 import com.nsg.evolve.engine.render.shaders.Shaders;
 import com.nsg.evolve.engine.render.shaders.Uniforms;
 import com.nsg.evolve.engine.scene.Scene;

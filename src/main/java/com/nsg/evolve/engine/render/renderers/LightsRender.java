@@ -1,7 +1,6 @@
 package com.nsg.evolve.engine.render.renderers;
 
-import com.nsg.evolve.engine.render.GBuffer;
-import com.nsg.evolve.engine.render.QuadMesh;
+import com.nsg.evolve.engine.render.buffers.GBuffer;
 import com.nsg.evolve.engine.render.shaders.Shaders;
 import com.nsg.evolve.engine.render.shaders.Uniforms;
 import com.nsg.evolve.engine.render.shadows.CascadeShadow;

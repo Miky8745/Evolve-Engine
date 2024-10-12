@@ -1,4 +1,4 @@
-package com.nsg.evolve.engine.render;
+package com.nsg.evolve.engine.render.buffers;
 
 import com.nsg.evolve.engine.Window;
 import org.lwjgl.opengl.GL30;

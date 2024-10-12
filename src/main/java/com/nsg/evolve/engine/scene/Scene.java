@@ -3,7 +3,7 @@ package com.nsg.evolve.engine.scene;
 import com.nsg.evolve.engine.interfaces.IGuiInstance;
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Model;
-import com.nsg.evolve.engine.render.object.texture.TextureCache;
+import com.nsg.evolve.engine.render.object.cache.TextureCache;
 import com.nsg.evolve.engine.scene.lighting.SceneLights;
 
 import java.util.HashMap;

@@ -18,9 +18,9 @@ public class Window {
 
     private final long windowHandle;
     private int height;
+    private MouseInput mouseInput;
     private Callable<Void> resizeFunc;
     private int width;
-    private MouseInput mouseInput;
 
     public Window(String title, WindowOptions opts, Callable<Void> resizeFunc) {
         this.resizeFunc = resizeFunc;
@@ -32,8 +32,11 @@ public class Window {
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        if (opts.antiAliasing) {
+            glfwWindowHint(GLFW_SAMPLES, 4);
+        }
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
         if (opts.compatibleProfile) {
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
         } else {
@@ -62,7 +65,9 @@ public class Window {
                 Logger.error("Error code [{}], msg [{}]", errorCode, MemoryUtil.memUTF8(msgPtr))
         );
 
-        glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> keyCallBack(key, action));
+        glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> {
+            keyCallBack(key, action);
+        });
 
         glfwMakeContextCurrent(windowHandle);
 
@@ -71,12 +76,6 @@ public class Window {
         } else {
             glfwSwapInterval(1);
         }
-
-        if (opts.antiAliasing) {
-            glfwWindowHint(GLFW_SAMPLES, 4);
-        }
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 
         glfwShowWindow(windowHandle);
 
@@ -103,6 +102,10 @@ public class Window {
         return height;
     }
 
+    public MouseInput getMouseInput() {
+        return mouseInput;
+    }
+
     public int getWidth() {
         return width;
     }
@@ -116,7 +119,9 @@ public class Window {
     }
 
     public void keyCallBack(int key, int action) {
-
+        if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
+            glfwSetWindowShouldClose(windowHandle, true); // We will detect this in the rendering loop
+        }
     }
 
     public void pollEvents() {
@@ -128,8 +133,8 @@ public class Window {
         this.height = height;
         try {
             resizeFunc.call();
-        } catch (Exception e) {
-            Logger.error("Error calling resize callback", e);
+        } catch (Exception excp) {
+            Logger.error("Error calling resize callback", excp);
         }
     }
 
@@ -142,15 +147,11 @@ public class Window {
     }
 
     public static class WindowOptions {
+        public boolean antiAliasing;
         public boolean compatibleProfile;
         public int fps;
         public int height;
         public int ups = Engine.TARGET_UPS;
         public int width;
-        public boolean antiAliasing;
-    }
-
-    public MouseInput getMouseInput() {
-        return mouseInput;
     }
 }
