@@ -51,7 +51,7 @@ public class Main implements IAppLogic {
 
     @Override
     public void cleanup() {
-        soundMgr.cleanup();
+        //soundMgr.cleanup();
     }
 
     @Override
@@ -59,15 +59,19 @@ public class Main implements IAppLogic {
         summonTerrain(scene);
 
         Model cubeModel = ModelLoader.loadModel("cube-model", "resources/models/cube/cube.obj",
-                scene.getTextureCache(), false);
+                scene.getTextureCache(), scene.getMaterialCache(), false);
         scene.addModel(cubeModel);
         cubeEntity1 = new Entity("cube-entity-1", cubeModel.getId());
         cubeEntity1.setPosition(0, 2, -1);
+        cubeEntity1.updateModelMatrix();
         scene.addEntity(cubeEntity1);
 
         cubeEntity2 = new Entity("cube-entity-2", cubeModel.getId());
         cubeEntity2.setPosition(-2, 2, -1);
+        cubeEntity2.updateModelMatrix();
         scene.addEntity(cubeEntity2);
+
+        render.setupData(scene);
 
         SceneLights sceneLights = new SceneLights();
         AmbientLight ambientLight = sceneLights.getAmbientLight();
@@ -79,7 +83,8 @@ public class Main implements IAppLogic {
         dirLight.setIntensity(1.0f);
         scene.setSceneLights(sceneLights);
 
-        SkyBox skyBox = new SkyBox("resources/models/skybox/skybox.obj", scene.getTextureCache());
+        SkyBox skyBox = new SkyBox("resources/models/skybox/skybox.obj", scene.getTextureCache(),
+                scene.getMaterialCache());
         skyBox.getSkyBoxEntity().setScale(1);
         skyBox.getSkyBoxEntity().updateModelMatrix();
         scene.setSkyBox(skyBox);
@@ -90,10 +95,10 @@ public class Main implements IAppLogic {
         camera.setPosition(-1.5f, 3.0f, 4.5f);
         camera.addRotation((float) Math.toRadians(15.0f), (float) Math.toRadians(390.f));
 
-        summonTestAnimation(scene, camera);
+        //summonTestAnimation(scene, camera);
 
         lightAngle = 2.6f;
-        summonTestCube(scene);
+        //summonTestCube(scene);
     }
 
     @Override
@@ -155,9 +160,11 @@ public class Main implements IAppLogic {
 
     @Override
     public void update(Window window, Scene scene, long diffTimeMillis) {
-        animationData.nextFrame();
-        if (animationData.getCurrentFrameIdx() == 46) {
-            playerSoundSource.play();
+        if (animationData != null) {
+            animationData.nextFrame();
+            if (animationData.getCurrentFrameIdx() == 46) {
+                playerSoundSource.play();
+            }
         }
 
         rotation += 1.5f;
@@ -180,7 +187,7 @@ public class Main implements IAppLogic {
     public void summonTestCube(Scene scene) {
         testCube = true;
         String cubeId = "cube";
-        Model cubeModel = ModelLoader.loadModel(cubeId, "resources/models/cube/cube.obj", scene.getTextureCache(), false);
+        Model cubeModel = ModelLoader.loadModel(cubeId, "resources/models/cube/cube.obj", scene.getTextureCache(), scene.getMaterialCache(), false);
         scene.addModel(cubeModel);
 
         cube = new Entity("cubeEntity", cubeId);
@@ -192,7 +199,7 @@ public class Main implements IAppLogic {
     public void summonTestAnimation(Scene scene, Camera camera) {
         String bobModelId = "bobModel";
         Model bobModel = ModelLoader.loadModel(bobModelId, "resources/models/bob/boblamp.md5mesh",
-                scene.getTextureCache(), true);
+                scene.getTextureCache(), scene.getMaterialCache(), true);
         scene.addModel(bobModel);
         Entity bobEntity = new Entity("bobEntity", bobModelId);
         bobEntity.setScale(0.05f);
@@ -206,7 +213,7 @@ public class Main implements IAppLogic {
     public void summonTerrain(Scene scene) {
         String terrainModelId = "terrain";
         Model terrainModel = ModelLoader.loadModel(terrainModelId, "resources/models/terrain/terrain.obj",
-                scene.getTextureCache(), false);
+                scene.getTextureCache(), scene.getMaterialCache(), false);
         scene.addModel(terrainModel);
         Entity terrainEntity = new Entity("terrainEntity", terrainModelId);
         terrainEntity.setScale(100.0f);

@@ -2,9 +2,14 @@ package com.nsg.evolve.engine.render;
 
 import com.nsg.evolve.engine.Window;
 import com.nsg.evolve.engine.render.buffers.GBuffer;
+import com.nsg.evolve.engine.render.buffers.RenderBuffers;
+import com.nsg.evolve.engine.render.object.Model;
 import com.nsg.evolve.engine.render.renderers.*;
 import com.nsg.evolve.engine.scene.Scene;
 import org.lwjgl.opengl.GL;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
@@ -17,6 +22,7 @@ public class Render {
     private GBuffer gBuffer;
     private GuiRender guiRender;
     private LightsRender lightsRender;
+    private RenderBuffers renderBuffers;
     private SceneRender sceneRender;
     private ShadowRender shadowRender;
     private SkyBoxRender skyBoxRender;
@@ -36,6 +42,7 @@ public class Render {
         shadowRender = new ShadowRender();
         lightsRender = new LightsRender();
         gBuffer = new GBuffer(window);
+        renderBuffers = new RenderBuffers();
     }
 
     public void cleanup() {
@@ -45,6 +52,7 @@ public class Render {
         shadowRender.cleanup();
         lightsRender.cleanup();
         gBuffer.cleanUp();
+        renderBuffers.cleanup();
     }
 
     private void lightRenderFinish() {
@@ -64,8 +72,8 @@ public class Render {
     }
 
     public void render(Window window, Scene scene) {
-        shadowRender.render(scene);
-        sceneRender.render(scene, gBuffer);
+        shadowRender.render(scene, renderBuffers);
+        sceneRender.render(scene, renderBuffers, gBuffer);
         lightRenderStart(window);
         lightsRender.render(scene, shadowRender, gBuffer);
         skyBoxRender.render(scene);
@@ -75,5 +83,14 @@ public class Render {
 
     public void resize(int width, int height) {
         guiRender.resize(width, height);
+    }
+
+    public void setupData(Scene scene) {
+        renderBuffers.loadStaticModels(scene);
+        renderBuffers.loadAnimatedModels(scene);
+        sceneRender.setupData(scene);
+        shadowRender.setupData(scene);
+        List<Model> modelList = new ArrayList<>(scene.getModelMap().values());
+        modelList.forEach(m -> m.getMeshDataList().clear());
     }
 }

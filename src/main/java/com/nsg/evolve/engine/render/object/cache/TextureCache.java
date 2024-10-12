@@ -2,6 +2,7 @@ package com.nsg.evolve.engine.render.object.cache;
 
 import com.nsg.evolve.engine.render.object.Texture;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +23,10 @@ public class TextureCache {
 
     public Texture createTexture(String texturePath) {
         return textureMap.computeIfAbsent(texturePath, Texture::new);
+    }
+
+    public Collection<Texture> getAll() {
+        return textureMap.values();
     }
 
     public Texture getTexture(String texturePath) {

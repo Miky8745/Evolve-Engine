@@ -1,5 +1,6 @@
 package com.nsg.evolve.engine.render.object;
 
+import com.nsg.evolve.engine.render.buffers.RenderBuffers;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
@@ -10,17 +11,15 @@ public class Model {
     private final String id;
     private List<Animation> animationList;
     private List<Entity> entitiesList;
-    private List<Material> materialList;
+    private List<MeshData> meshDataList;
+    private List<RenderBuffers.MeshDrawData> meshDrawDataList;
 
-    public Model(String id, List<Material> materialList, List<Animation> animationList) {
+    public Model(String id, List<MeshData> meshDataList, List<Animation> animationList) {
         entitiesList = new ArrayList<>();
         this.id = id;
-        this.materialList = materialList;
+        this.meshDataList = meshDataList;
         this.animationList = animationList;
-    }
-
-    public void cleanup() {
-        materialList.forEach(Material::cleanup);
+        meshDrawDataList = new ArrayList<>();
     }
 
     public List<Animation> getAnimationList() {
@@ -35,8 +34,16 @@ public class Model {
         return id;
     }
 
-    public List<Material> getMaterialList() {
-        return materialList;
+    public List<MeshData> getMeshDataList() {
+        return meshDataList;
+    }
+
+    public List<RenderBuffers.MeshDrawData> getMeshDrawDataList() {
+        return meshDrawDataList;
+    }
+
+    public boolean isAnimated() {
+        return animationList != null && !animationList.isEmpty();
     }
 
     public record AnimatedFrame(Matrix4f[] boneMatrices) {

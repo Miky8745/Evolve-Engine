@@ -1,9 +1,6 @@
 package com.nsg.evolve.engine.input;
 
-import com.nsg.evolve.engine.render.object.Entity;
-import com.nsg.evolve.engine.render.object.Material;
-import com.nsg.evolve.engine.render.object.Mesh;
-import com.nsg.evolve.engine.render.object.Model;
+import com.nsg.evolve.engine.render.object.*;
 import com.nsg.evolve.engine.scene.Scene;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -43,19 +40,17 @@ public class Interactions {
             List<Entity> entities = model.getEntitiesList();
             for (Entity entity : entities) {
                 modelMatrix.translate(entity.getPosition()).scale(entity.getScale());
-                for (Material material : model.getMaterialList()) {
-                    for (Mesh mesh : material.getMeshList()) {
-                        Vector3f aabbMin = mesh.getAabbMin();
-                        min.set(aabbMin.x, aabbMin.y, aabbMin.z, 1.0f);
-                        min.mul(modelMatrix);
-                        Vector3f aabMax = mesh.getAabbMax();
-                        max.set(aabMax.x, aabMax.y, aabMax.z, 1.0f);
-                        max.mul(modelMatrix);
-                        if (Intersectionf.intersectRayAab(center.x, center.y, center.z, mouseDir.x, mouseDir.y, mouseDir.z,
-                                min.x, min.y, min.z, max.x, max.y, max.z, nearFar) && nearFar.x < closestDistance) {
-                            closestDistance = nearFar.x;
-                            selectedEntity = entity;
-                        }
+                for (MeshData meshData : model.getMeshDataList()) {
+                    Vector3f aabbMin = meshData.getAabbMin();
+                    min.set(aabbMin.x, aabbMin.y, aabbMin.z, 1.0f);
+                    min.mul(modelMatrix);
+                    Vector3f aabMax = meshData.getAabbMax();
+                    max.set(aabMax.x, aabMax.y, aabMax.z, 1.0f);
+                    max.mul(modelMatrix);
+                    if (Intersectionf.intersectRayAab(center.x, center.y, center.z, mouseDir.x, mouseDir.y, mouseDir.z,
+                            min.x, min.y, min.z, max.x, max.y, max.z, nearFar) && nearFar.x < closestDistance) {
+                        closestDistance = nearFar.x;
+                        selectedEntity = entity;
                     }
                 }
                 modelMatrix.identity();

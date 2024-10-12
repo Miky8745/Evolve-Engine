@@ -3,6 +3,7 @@ package com.nsg.evolve.engine.scene;
 import com.nsg.evolve.engine.interfaces.IGuiInstance;
 import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.Model;
+import com.nsg.evolve.engine.render.object.cache.MaterialCache;
 import com.nsg.evolve.engine.render.object.cache.TextureCache;
 import com.nsg.evolve.engine.scene.lighting.SceneLights;
 
@@ -20,12 +21,14 @@ public class Scene {
     private SkyBox skyBox;
     private Fog fog;
     private Entity selectedEntity;
+    private MaterialCache materialCache;
 
     public Scene(int width, int height) {
         modelMap = new HashMap<>();
         projection = new Projection(width, height);
         textureCache = new TextureCache();
         camera = new Camera();
+        materialCache = new MaterialCache();
     }
 
     public void addEntity(Entity entity) {
@@ -39,10 +42,6 @@ public class Scene {
 
     public void addModel(Model model) {
         modelMap.put(model.getId(), model);
-    }
-
-    public void cleanup() {
-        modelMap.values().forEach(Model::cleanup);
     }
 
     public Map<String, Model> getModelMap() {
@@ -103,5 +102,9 @@ public class Scene {
 
     public void setSelectedEntity(Entity selectedEntity) {
         this.selectedEntity = selectedEntity;
+    }
+
+    public MaterialCache getMaterialCache() {
+        return materialCache;
     }
 }

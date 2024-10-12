@@ -9,27 +9,27 @@ public class Material {
 
     public static final Vector4f DEFAULT_COLOR = new Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
 
-    private Vector4f diffuseColor;
     private Vector4f ambientColor;
+    private Vector4f diffuseColor;
+    private int materialIdx;
+    private String normalMapPath;
     private float reflectance;
     private Vector4f specularColor;
-    private String normalMapPath;
-
-    private List<Mesh> meshList;
     private String texturePath;
 
     public Material() {
         diffuseColor = DEFAULT_COLOR;
         ambientColor = DEFAULT_COLOR;
-        meshList = new ArrayList<>();
+        specularColor = DEFAULT_COLOR;
+        materialIdx = 0;
     }
 
-    public void cleanup() {
-        meshList.forEach(Mesh::cleanup);
+    public int getMaterialIdx() {
+        return materialIdx;
     }
 
-    public List<Mesh> getMeshList() {
-        return meshList;
+    public void setMaterialIdx(int materialIdx) {
+        this.materialIdx = materialIdx;
     }
 
     public String getTexturePath() {

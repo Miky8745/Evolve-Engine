@@ -3,7 +3,9 @@ package com.nsg.evolve.engine.scene;
 import com.nsg.evolve.engine.Utilities;
 import com.nsg.evolve.engine.render.object.Material;
 import com.nsg.evolve.engine.render.object.Mesh;
+import com.nsg.evolve.engine.render.object.MeshData;
 import com.nsg.evolve.engine.render.object.Model;
+import com.nsg.evolve.engine.render.object.cache.MaterialCache;
 import com.nsg.evolve.engine.render.object.cache.TextureCache;
 import com.nsg.evolve.engine.scene.animations.Node;
 import org.joml.Matrix4f;
@@ -24,6 +26,10 @@ public class ModelLoader {
 
     public static final int MAX_BONES = 150;
     private static final Matrix4f IDENTITY_MATRIX = new Matrix4f();
+
+    private ModelLoader() {
+        // Utility class
+    }
 
     private static void buildFrameMatrices(AIAnimation aiAnimation, List<Bone> boneList, Model.AnimatedFrame animatedFrame,
                                            int frame, Node node, Matrix4f parentTransformation, Matrix4f globalInverseTransform) {
@@ -122,14 +128,15 @@ public class ModelLoader {
         return result;
     }
 
-    public static Model loadModel(String modelId, String modelPath, TextureCache textureCache, boolean animation) {
-        return loadModel(modelId, modelPath, textureCache, aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices |
+    public static Model loadModel(String modelId, String modelPath, TextureCache textureCache, MaterialCache materialCache,
+                                  boolean animation) {
+        return loadModel(modelId, modelPath, textureCache, materialCache, aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices |
                 aiProcess_Triangulate | aiProcess_FixInfacingNormals | aiProcess_CalcTangentSpace | aiProcess_LimitBoneWeights |
                 aiProcess_GenBoundingBoxes | (animation ? 0 : aiProcess_PreTransformVertices));
-
     }
 
-    public static Model loadModel(String modelId, String modelPath, TextureCache textureCache, int flags) {
+    public static Model loadModel(String modelId, String modelPath, TextureCache textureCache,
+                                  MaterialCache materialCache, int flags) {
         File file = new File(modelPath);
         if (!file.exists()) {
             throw new RuntimeException("Model path does not exist [" + modelPath + "]");
@@ -145,28 +152,25 @@ public class ModelLoader {
         List<Material> materialList = new ArrayList<>();
         for (int i = 0; i < numMaterials; i++) {
             AIMaterial aiMaterial = AIMaterial.create(aiScene.mMaterials().get(i));
-            materialList.add(processMaterial(aiMaterial, modelDir, textureCache));
+            Material material = processMaterial(aiMaterial, modelDir, textureCache);
+            materialCache.addMaterial(material);
+            materialList.add(material);
         }
 
         int numMeshes = aiScene.mNumMeshes();
         PointerBuffer aiMeshes = aiScene.mMeshes();
-        Material defaultMaterial = new Material();
+        List<MeshData> meshDataList = new ArrayList<>();
         List<Bone> boneList = new ArrayList<>();
         for (int i = 0; i < numMeshes; i++) {
             AIMesh aiMesh = AIMesh.create(aiMeshes.get(i));
-            Mesh mesh = processMesh(aiMesh, boneList);
+            MeshData meshData = processMesh(aiMesh, boneList);
             int materialIdx = aiMesh.mMaterialIndex();
-            Material material;
             if (materialIdx >= 0 && materialIdx < materialList.size()) {
-                material = materialList.get(materialIdx);
+                meshData.setMaterialIdx(materialList.get(materialIdx).getMaterialIdx());
             } else {
-                material = defaultMaterial;
+                meshData.setMaterialIdx(MaterialCache.DEFAULT_MATERIAL_IDX);
             }
-            material.getMeshList().add(mesh);
-        }
-
-        if (!defaultMaterial.getMeshList().isEmpty()) {
-            materialList.add(defaultMaterial);
+            meshDataList.add(meshData);
         }
 
         List<Model.Animation> animations = new ArrayList<>();
@@ -179,7 +183,7 @@ public class ModelLoader {
 
         aiReleaseImport(aiScene);
 
-        return new Model(modelId, materialList, animations);
+        return new Model(modelId, meshDataList, animations);
     }
 
     private static List<Model.Animation> processAnimations(AIScene aiScene, List<Bone> boneList,
@@ -338,7 +342,7 @@ public class ModelLoader {
         }
     }
 
-    private static Mesh processMesh(AIMesh aiMesh, List<Bone> boneList) {
+    private static MeshData processMesh(AIMesh aiMesh, List<Bone> boneList) {
         float[] vertices = processVertices(aiMesh);
         float[] normals = processNormals(aiMesh);
         float[] tangents = processTangents(aiMesh, normals);
@@ -357,7 +361,7 @@ public class ModelLoader {
         Vector3f aabbMin = new Vector3f(aabb.mMin().x(), aabb.mMin().y(), aabb.mMin().z());
         Vector3f aabbMax = new Vector3f(aabb.mMax().x(), aabb.mMax().y(), aabb.mMax().z());
 
-        return new Mesh(vertices, normals, tangents, bitangents, textCoords, indices, animMeshData.boneIds,
+        return new MeshData(vertices, normals, tangents, bitangents, textCoords, indices, animMeshData.boneIds,
                 animMeshData.weights, aabbMin, aabbMax);
     }
 
