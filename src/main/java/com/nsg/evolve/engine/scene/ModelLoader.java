@@ -41,7 +41,7 @@ public class ModelLoader {
         for (Bone bone : affectedBones) {
             Matrix4f boneTransform = new Matrix4f(globalInverseTransform).mul(nodeGlobalTransform).
                     mul(bone.offsetMatrix());
-            animatedFrame.boneMatrices()[bone.boneId()] = boneTransform;
+            animatedFrame.getBonesMatrices()[bone.boneId()] = boneTransform;
         }
 
         for (Node childNode : node.getChildren()) {

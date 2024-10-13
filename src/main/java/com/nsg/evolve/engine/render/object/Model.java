@@ -46,9 +46,31 @@ public class Model {
         return animationList != null && !animationList.isEmpty();
     }
 
-    public record AnimatedFrame(Matrix4f[] boneMatrices) {
+    public record Animation(String name, double duration, List<AnimatedFrame> frames) {
     }
 
-    public record Animation(String name, double duration, List<AnimatedFrame> frames) {
+    public static class AnimatedFrame {
+        private Matrix4f[] bonesMatrices;
+        private int offset;
+
+        public AnimatedFrame(Matrix4f[] bonesMatrices) {
+            this.bonesMatrices = bonesMatrices;
+        }
+
+        public void clearData() {
+            bonesMatrices = null;
+        }
+
+        public Matrix4f[] getBonesMatrices() {
+            return bonesMatrices;
+        }
+
+        public int getOffset() {
+            return offset;
+        }
+
+        public void setOffset(int offset) {
+            this.offset = offset;
+        }
     }
 }

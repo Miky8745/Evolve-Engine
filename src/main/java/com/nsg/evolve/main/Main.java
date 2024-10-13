@@ -28,11 +28,9 @@ public class Main implements IAppLogic {
     private static final float MOUSE_SENSITIVITY = 0.1f;
     private static final float MOVEMENT_SPEED = 0.001f;
     private float lightAngle;
-    private Entity cube;
     private float rotation;
-    private boolean testCube = false;
-    private AnimationData animationData;
-    private SoundSource playerSoundSource;
+    private AnimationData animationData1;
+    private AnimationData animationData2;
     private SoundManager soundMgr;
     private Entity cubeEntity1;
     private Entity cubeEntity2;
@@ -51,7 +49,7 @@ public class Main implements IAppLogic {
 
     @Override
     public void cleanup() {
-        //soundMgr.cleanup();
+        soundMgr.cleanup();
     }
 
     @Override
@@ -70,6 +68,25 @@ public class Main implements IAppLogic {
         cubeEntity2.setPosition(-2, 2, -1);
         cubeEntity2.updateModelMatrix();
         scene.addEntity(cubeEntity2);
+
+        String bobModelId = "bobModel";
+        Model bobModel = ModelLoader.loadModel(bobModelId, "resources/models/bob/boblamp.md5mesh",
+                scene.getTextureCache(), scene.getMaterialCache(), true);
+        scene.addModel(bobModel);
+        Entity bobEntity = new Entity("bobEntity-1", bobModelId);
+        bobEntity.setScale(0.05f);
+        bobEntity.updateModelMatrix();
+        animationData1 = new AnimationData(bobModel.getAnimationList().get(0));
+        bobEntity.setAnimationData(animationData1);
+        scene.addEntity(bobEntity);
+
+        Entity bobEntity2 = new Entity("bobEntity-2", bobModelId);
+        bobEntity2.setPosition(2, 0, 0);
+        bobEntity2.setScale(0.025f);
+        bobEntity2.updateModelMatrix();
+        animationData2 = new AnimationData(bobModel.getAnimationList().get(0));
+        bobEntity2.setAnimationData(animationData2);
+        scene.addEntity(bobEntity2);
 
         render.setupData(scene);
 
@@ -95,10 +112,9 @@ public class Main implements IAppLogic {
         camera.setPosition(-1.5f, 3.0f, 4.5f);
         camera.addRotation((float) Math.toRadians(15.0f), (float) Math.toRadians(390.f));
 
-        //summonTestAnimation(scene, camera);
+        initSounds(camera);
 
         lightAngle = 2.6f;
-        //summonTestCube(scene);
     }
 
     @Override
@@ -165,10 +181,11 @@ public class Main implements IAppLogic {
 
     @Override
     public void update(Window window, Scene scene, long diffTimeMillis) {
-        if (animationData != null) {
-            animationData.nextFrame();
-            if (animationData.getCurrentFrameIdx() == 46) {
-                playerSoundSource.play();
+        if (animationData1 != null) {
+            animationData1.nextFrame();
+
+            if (diffTimeMillis % 2 == 0) {
+                animationData2.nextFrame();
             }
         }
 
@@ -177,42 +194,11 @@ public class Main implements IAppLogic {
             rotation = 0;
         }
 
-        if (testCube) {
-            cube.setRotation(1, 1, 1, (float) Math.toRadians(rotation));
-            cube.updateModelMatrix();
-        }
-
         cubeEntity1.setRotation(1, 1, 1, (float) Math.toRadians(rotation));
         cubeEntity1.updateModelMatrix();
 
         cubeEntity2.setRotation(1, 1, 1, (float) Math.toRadians(360 - rotation));
         cubeEntity2.updateModelMatrix();
-    }
-
-    public void summonTestCube(Scene scene) {
-        testCube = true;
-        String cubeId = "cube";
-        Model cubeModel = ModelLoader.loadModel(cubeId, "resources/models/cube/cube.obj", scene.getTextureCache(), scene.getMaterialCache(), false);
-        scene.addModel(cubeModel);
-
-        cube = new Entity("cubeEntity", cubeId);
-        cube.setPosition(2,1,0);
-        cube.updateModelMatrix();
-        scene.addEntity(cube);
-    }
-
-    public void summonTestAnimation(Scene scene, Camera camera) {
-        String bobModelId = "bobModel";
-        Model bobModel = ModelLoader.loadModel(bobModelId, "resources/models/bob/boblamp.md5mesh",
-                scene.getTextureCache(), scene.getMaterialCache(), true);
-        scene.addModel(bobModel);
-        Entity bobEntity = new Entity("bobEntity", bobModelId);
-        bobEntity.setScale(0.05f);
-        bobEntity.updateModelMatrix();
-        animationData = new AnimationData(bobModel.getAnimationList().get(0));
-        bobEntity.setAnimationData(animationData);
-        scene.addEntity(bobEntity);
-        initSounds(bobEntity.getPosition(), camera);
     }
 
     public void summonTerrain(Scene scene) {
@@ -226,19 +212,12 @@ public class Main implements IAppLogic {
         scene.addEntity(terrainEntity);
     }
 
-    private void initSounds(Vector3f position, Camera camera) {
+    private void initSounds(Camera camera) {
         soundMgr = new SoundManager();
         soundMgr.setAttenuationModel(AL11.AL_EXPONENT_DISTANCE);
         soundMgr.setListener(new SoundListener(camera.getPosition()));
 
-        SoundBuffer buffer = new SoundBuffer("resources/sounds/creak1.ogg");
-        soundMgr.addSoundBuffer(buffer);
-        playerSoundSource = new SoundSource(false, false);
-        playerSoundSource.setPosition(position);
-        playerSoundSource.setBuffer(buffer.getBufferId());
-        soundMgr.addSoundSource("CREAK", playerSoundSource);
-
-        buffer = new SoundBuffer("resources/sounds/woo_scary.ogg");
+        SoundBuffer buffer = new SoundBuffer("resources/sounds/woo_scary.ogg");
         soundMgr.addSoundBuffer(buffer);
         SoundSource source = new SoundSource(true, true);
         source.setBuffer(buffer.getBufferId());

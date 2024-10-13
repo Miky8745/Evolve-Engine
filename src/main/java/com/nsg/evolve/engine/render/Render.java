@@ -19,6 +19,7 @@ import static org.lwjgl.opengl.GL30.*;
 
 public class Render {
 
+    private AnimationRender animationRender;
     private GBuffer gBuffer;
     private GuiRender guiRender;
     private LightsRender lightsRender;
@@ -41,6 +42,7 @@ public class Render {
         skyBoxRender = new SkyBoxRender();
         shadowRender = new ShadowRender();
         lightsRender = new LightsRender();
+        animationRender = new AnimationRender();
         gBuffer = new GBuffer(window);
         renderBuffers = new RenderBuffers();
     }
@@ -51,6 +53,7 @@ public class Render {
         skyBoxRender.cleanup();
         shadowRender.cleanup();
         lightsRender.cleanup();
+        animationRender.cleanup();
         gBuffer.cleanUp();
         renderBuffers.cleanup();
     }
@@ -72,6 +75,7 @@ public class Render {
     }
 
     public void render(Window window, Scene scene) {
+        animationRender.render(scene, renderBuffers);
         shadowRender.render(scene, renderBuffers);
         sceneRender.render(scene, renderBuffers, gBuffer);
         lightRenderStart(window);

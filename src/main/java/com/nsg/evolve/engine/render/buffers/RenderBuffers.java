@@ -1,11 +1,14 @@
 package com.nsg.evolve.engine.render.buffers;
 
+import com.nsg.evolve.engine.render.object.Entity;
 import com.nsg.evolve.engine.render.object.MeshData;
 import com.nsg.evolve.engine.render.object.Model;
 import com.nsg.evolve.engine.scene.Scene;
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -15,11 +18,18 @@ import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BUFFER;
 
 public class RenderBuffers {
 
     private int staticVaoId;
     private List<Integer> vboIdList;
+
+    private int animVaoId;
+    private int bindingPosesBuffer;
+    private int bonesIndicesWeightsBuffer;
+    private int bonesMatricesBuffer;
+    private int destAnimationBuffer;
 
     public RenderBuffers() {
         vboIdList = new ArrayList<>();
@@ -28,6 +38,7 @@ public class RenderBuffers {
     public void cleanup() {
         vboIdList.forEach(GL30::glDeleteBuffers);
         glDeleteVertexArrays(staticVaoId);
+        glDeleteVertexArrays(animVaoId);
     }
 
     private void defineVertexAttribs() {
@@ -58,8 +69,103 @@ public class RenderBuffers {
         return staticVaoId;
     }
 
+    public int getAnimVaoId() {
+        return animVaoId;
+    }
+
+    public int getBindingPosesBuffer() {
+        return bindingPosesBuffer;
+    }
+
+    public int getBonesIndicesWeightsBuffer() {
+        return bonesIndicesWeightsBuffer;
+    }
+
+    public int getBonesMatricesBuffer() {
+        return bonesMatricesBuffer;
+    }
+
+    public int getDestAnimationBuffer() {
+        return destAnimationBuffer;
+    }
+
     public void loadAnimatedModels(Scene scene) {
-        // TODO: Animations
+        List<Model> modelList = scene.getModelMap().values().stream().filter(Model::isAnimated).toList();
+        loadBindingPoses(modelList);
+        loadBonesMatricesBuffer(modelList);
+        loadBonesIndicesWeights(modelList);
+
+        animVaoId = glGenVertexArrays();
+        glBindVertexArray(animVaoId);
+        int positionsSize = 0;
+        int normalsSize = 0;
+        int textureCoordsSize = 0;
+        int indicesSize = 0;
+        int offset = 0;
+        int chunkBindingPoseOffset = 0;
+        int bindingPoseOffset = 0;
+        int chunkWeightsOffset = 0;
+        int weightsOffset = 0;
+        for (Model model : modelList) {
+            List<Entity> entities = model.getEntitiesList();
+            for (Entity entity : entities) {
+                List<RenderBuffers.MeshDrawData> meshDrawDataList = model.getMeshDrawDataList();
+                bindingPoseOffset = chunkBindingPoseOffset;
+                weightsOffset = chunkWeightsOffset;
+                for (MeshData meshData : model.getMeshDataList()) {
+                    positionsSize += meshData.getPositions().length;
+                    normalsSize += meshData.getNormals().length;
+                    textureCoordsSize += meshData.getTextCoords().length;
+                    indicesSize += meshData.getIndices().length;
+
+                    int meshSizeInBytes = (meshData.getPositions().length + meshData.getNormals().length * 3 + meshData.getTextCoords().length) * 4;
+                    meshDrawDataList.add(new MeshDrawData(meshSizeInBytes, meshData.getMaterialIdx(), offset,
+                            meshData.getIndices().length, new AnimMeshDrawData(entity, bindingPoseOffset, weightsOffset)));
+                    bindingPoseOffset += meshSizeInBytes / 4;
+                    int groupSize = (int) Math.ceil((float) meshSizeInBytes / (14 * 4));
+                    weightsOffset += groupSize * 2 * 4;
+                    offset = positionsSize / 3;
+                }
+            }
+            chunkBindingPoseOffset += bindingPoseOffset;
+            chunkWeightsOffset += weightsOffset;
+        }
+
+        destAnimationBuffer = glGenBuffers();
+        vboIdList.add(destAnimationBuffer);
+        FloatBuffer meshesBuffer = MemoryUtil.memAllocFloat(positionsSize + normalsSize * 3 + textureCoordsSize);
+        for (Model model : modelList) {
+            model.getEntitiesList().forEach(e -> {
+                for (MeshData meshData : model.getMeshDataList()) {
+                    populateMeshBuffer(meshesBuffer, meshData);
+                }
+            });
+        }
+        meshesBuffer.flip();
+        glBindBuffer(GL_ARRAY_BUFFER, destAnimationBuffer);
+        glBufferData(GL_ARRAY_BUFFER, meshesBuffer, GL_STATIC_DRAW);
+        MemoryUtil.memFree(meshesBuffer);
+
+        defineVertexAttribs();
+
+        // Index VBO
+        int vboId = glGenBuffers();
+        vboIdList.add(vboId);
+        IntBuffer indicesBuffer = MemoryUtil.memAllocInt(indicesSize);
+        for (Model model : modelList) {
+            model.getEntitiesList().forEach(e -> {
+                for (MeshData meshData : model.getMeshDataList()) {
+                    indicesBuffer.put(meshData.getIndices());
+                }
+            });
+        }
+        indicesBuffer.flip();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboId);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL_STATIC_DRAW);
+        MemoryUtil.memFree(indicesBuffer);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
     }
 
     public void loadStaticModels(Scene scene) {
@@ -147,6 +253,119 @@ public class RenderBuffers {
         }
     }
 
-    public record MeshDrawData(int sizeInBytes, int materialIdx, int offset, int vertices) {
+    private void loadBindingPoses(List<Model> modelList) {
+        int meshSize = 0;
+        for (Model model : modelList) {
+            for (MeshData meshData : model.getMeshDataList()) {
+                meshSize += meshData.getPositions().length + meshData.getNormals().length * 3 +
+                        meshData.getTextCoords().length + meshData.getIndices().length;
+            }
+        }
+
+        bindingPosesBuffer = glGenBuffers();
+        vboIdList.add(bindingPosesBuffer);
+        FloatBuffer meshesBuffer = MemoryUtil.memAllocFloat(meshSize);
+        for (Model model : modelList) {
+            for (MeshData meshData : model.getMeshDataList()) {
+                populateMeshBuffer(meshesBuffer, meshData);
+            }
+        }
+        meshesBuffer.flip();
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, bindingPosesBuffer);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, meshesBuffer, GL_STATIC_DRAW);
+        MemoryUtil.memFree(meshesBuffer);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    private void loadBonesMatricesBuffer(List<Model> modelList) {
+        int bufferSize = getBufferSize(modelList);
+
+        bonesMatricesBuffer = glGenBuffers();
+        vboIdList.add(bonesMatricesBuffer);
+        ByteBuffer dataBuffer = MemoryUtil.memAlloc(bufferSize);
+        int matrixSize = 4 * 4 * 4;
+        for (Model model : modelList) {
+            List<Model.Animation> animationsList = model.getAnimationList();
+            for (Model.Animation animation : animationsList) {
+                List<Model.AnimatedFrame> frameList = animation.frames();
+                for (Model.AnimatedFrame frame : frameList) {
+                    frame.setOffset(dataBuffer.position() / matrixSize);
+                    Matrix4f[] matrices = frame.getBonesMatrices();
+                    for (Matrix4f matrix : matrices) {
+                        matrix.get(dataBuffer);
+                        dataBuffer.position(dataBuffer.position() + matrixSize);
+                    }
+                    frame.clearData();
+                }
+            }
+        }
+        dataBuffer.flip();
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, bonesMatricesBuffer);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, dataBuffer, GL_STATIC_DRAW);
+        MemoryUtil.memFree(dataBuffer);
+    }
+
+    private static int getBufferSize(List<Model> modelList) {
+        int bufferSize = 0;
+        for (Model model : modelList) {
+            List<Model.Animation> animationsList = model.getAnimationList();
+            for (Model.Animation animation : animationsList) {
+                List<Model.AnimatedFrame> frameList = animation.frames();
+                for (Model.AnimatedFrame frame : frameList) {
+                    Matrix4f[] matrices = frame.getBonesMatrices();
+                    bufferSize += matrices.length * 64;
+                }
+            }
+        }
+        return bufferSize;
+    }
+
+    private void loadBonesIndicesWeights(List<Model> modelList) {
+        int bufferSize = 0;
+        for (Model model : modelList) {
+            for (MeshData meshData : model.getMeshDataList()) {
+                bufferSize += meshData.getBoneIndices().length * 4 + meshData.getWeights().length * 4;
+            }
+        }
+        ByteBuffer dataBuffer = MemoryUtil.memAlloc(bufferSize);
+        for (Model model : modelList) {
+            for (MeshData meshData : model.getMeshDataList()) {
+                int[] bonesIndices = meshData.getBoneIndices();
+                float[] weights = meshData.getWeights();
+                int rows = bonesIndices.length / 4;
+                for (int row = 0; row < rows; row++) {
+                    int startPos = row * 4;
+                    dataBuffer.putFloat(weights[startPos]);
+                    dataBuffer.putFloat(weights[startPos + 1]);
+                    dataBuffer.putFloat(weights[startPos + 2]);
+                    dataBuffer.putFloat(weights[startPos + 3]);
+                    dataBuffer.putFloat(bonesIndices[startPos]);
+                    dataBuffer.putFloat(bonesIndices[startPos + 1]);
+                    dataBuffer.putFloat(bonesIndices[startPos + 2]);
+                    dataBuffer.putFloat(bonesIndices[startPos + 3]);
+                }
+            }
+        }
+        dataBuffer.flip();
+
+        bonesIndicesWeightsBuffer = glGenBuffers();
+        vboIdList.add(bonesIndicesWeightsBuffer);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, bonesIndicesWeightsBuffer);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, dataBuffer, GL_STATIC_DRAW);
+        MemoryUtil.memFree(dataBuffer);
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    }
+
+    public record AnimMeshDrawData(Entity entity, int bindingPoseOffset, int weightsOffset) {
+    }
+
+    public record MeshDrawData(int sizeInBytes, int materialIdx, int offset, int vertices,
+                               AnimMeshDrawData animMeshDrawData) {
+        public MeshDrawData(int sizeInBytes, int materialIdx, int offset, int vertices) {
+            this(sizeInBytes, materialIdx, offset, vertices, null);
+        }
     }
 }
