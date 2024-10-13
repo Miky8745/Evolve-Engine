@@ -2,9 +2,6 @@ package com.nsg.evolve.engine.render.object;
 
 import org.joml.Vector4f;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Material {
 
     public static final Vector4f DEFAULT_COLOR = new Vector4f(0.0f, 0.0f, 0.0f, 1.0f);

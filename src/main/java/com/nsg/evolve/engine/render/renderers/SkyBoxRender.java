@@ -1,6 +1,9 @@
 package com.nsg.evolve.engine.render.renderers;
 
-import com.nsg.evolve.engine.render.object.*;
+import com.nsg.evolve.engine.render.object.Entity;
+import com.nsg.evolve.engine.render.object.Material;
+import com.nsg.evolve.engine.render.object.Mesh;
+import com.nsg.evolve.engine.render.object.Texture;
 import com.nsg.evolve.engine.render.object.cache.TextureCache;
 import com.nsg.evolve.engine.render.shaders.Shaders;
 import com.nsg.evolve.engine.render.shaders.Uniforms;

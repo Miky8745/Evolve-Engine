@@ -149,6 +149,11 @@ public class Main implements IAppLogic {
 
         if (mouseInput.isLeftButtonPressed()) {
             selectEntity(scene);
+            if (scene.getSelectedEntity() != null) {
+                System.out.println(scene.getSelectedEntity().getId());
+            } else {
+                System.out.println("Selected entity is null");
+            }
         }
 
         SceneLights sceneLights = scene.getSceneLights();

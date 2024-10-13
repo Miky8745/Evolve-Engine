@@ -1,6 +1,8 @@
 package com.nsg.evolve.engine.input;
 
-import com.nsg.evolve.engine.render.object.*;
+import com.nsg.evolve.engine.render.object.Entity;
+import com.nsg.evolve.engine.render.object.MeshData;
+import com.nsg.evolve.engine.render.object.Model;
 import com.nsg.evolve.engine.scene.Scene;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -40,7 +42,7 @@ public class Interactions {
             List<Entity> entities = model.getEntitiesList();
             for (Entity entity : entities) {
                 modelMatrix.translate(entity.getPosition()).scale(entity.getScale());
-                for (MeshData meshData : model.getMeshDataList()) {
+                for (MeshData meshData : model.getMeshDataList()) { // TODO: something with meshDataList
                     Vector3f aabbMin = meshData.getAabbMin();
                     min.set(aabbMin.x, aabbMin.y, aabbMin.z, 1.0f);
                     min.mul(modelMatrix);

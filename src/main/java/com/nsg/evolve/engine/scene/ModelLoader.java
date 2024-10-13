@@ -27,10 +27,6 @@ public class ModelLoader {
     public static final int MAX_BONES = 150;
     private static final Matrix4f IDENTITY_MATRIX = new Matrix4f();
 
-    private ModelLoader() {
-        // Utility class
-    }
-
     private static void buildFrameMatrices(AIAnimation aiAnimation, List<Bone> boneList, Model.AnimatedFrame animatedFrame,
                                            int frame, Node node, Matrix4f parentTransformation, Matrix4f globalInverseTransform) {
         String nodeName = node.getName();
