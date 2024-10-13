@@ -42,7 +42,7 @@ public class Interactions {
             List<Entity> entities = model.getEntitiesList();
             for (Entity entity : entities) {
                 modelMatrix.translate(entity.getPosition()).scale(entity.getScale());
-                for (MeshData meshData : model.getMeshDataList()) { // TODO: something with meshDataList
+                for (MeshData meshData : model.getInteractionsMeshDataList()) {
                     Vector3f aabbMin = meshData.getAabbMin();
                     min.set(aabbMin.x, aabbMin.y, aabbMin.z, 1.0f);
                     min.mul(modelMatrix);

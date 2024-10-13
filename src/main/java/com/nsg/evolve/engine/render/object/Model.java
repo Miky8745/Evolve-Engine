@@ -12,12 +12,14 @@ public class Model {
     private List<Animation> animationList;
     private List<Entity> entitiesList;
     private List<MeshData> meshDataList;
+    private List<MeshData> interactionsMeshDataList;
     private List<RenderBuffers.MeshDrawData> meshDrawDataList;
 
     public Model(String id, List<MeshData> meshDataList, List<Animation> animationList) {
         entitiesList = new ArrayList<>();
         this.id = id;
         this.meshDataList = meshDataList;
+        interactionsMeshDataList = new ArrayList<>(meshDataList);
         this.animationList = animationList;
         meshDrawDataList = new ArrayList<>();
     }
@@ -44,6 +46,10 @@ public class Model {
 
     public boolean isAnimated() {
         return animationList != null && !animationList.isEmpty();
+    }
+
+    public List<MeshData> getInteractionsMeshDataList() {
+        return interactionsMeshDataList;
     }
 
     public record Animation(String name, double duration, List<AnimatedFrame> frames) {
