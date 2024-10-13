@@ -282,6 +282,7 @@ public class SceneRender {
         staticDrawCount = commandBuffer.remaining() / COMMAND_SIZE;
 
         staticRenderBufferHandle = glGenBuffers();
+        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, staticRenderBufferHandle);
         glBufferData(GL_DRAW_INDIRECT_BUFFER, commandBuffer, GL_DYNAMIC_DRAW);
 
         MemoryUtil.memFree(commandBuffer);
